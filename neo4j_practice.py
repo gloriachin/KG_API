@@ -75,8 +75,7 @@ class App:
         result = tx.run(query, person_name=person_name)
         return [row["name"] for row in result]
 
-
-if __name__ == "__main__":
+def main():
     uri = "neo4j+s://88d63c49.databases.neo4j.io" # Aura queries use an encrypted connection using the "neo4j+s" URI scheme
     user = "neo4j"
     
@@ -91,3 +90,6 @@ if __name__ == "__main__":
     app.create_friendship("Katie", "Guangrong")
     app.find_person("Katie")
     app.close()
+
+if __name__ == "__main__":
+    main()
