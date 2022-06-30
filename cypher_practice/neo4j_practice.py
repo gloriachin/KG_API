@@ -3,7 +3,7 @@
 '''
 @authors: Neo4j AuraDB (https://console.neo4j.io/#databases/88d63c49/detail),  additions from Katie Christensen
 
-Practice working with the Cypher query language.
+Practice working with the Cypher query language
 '''
 
 import logging
