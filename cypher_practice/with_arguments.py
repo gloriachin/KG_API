@@ -43,7 +43,7 @@ class App():
         with self.driver.session() as session:
             result = session.read_transaction(self._find_and_return_node, label, name)
             if len(result) == 0:
-                print("Failed to find ", label,": ", name)
+                print("Could not find ", label,": ", name)
             else:
                 for row in result:
                    print("Found ", label,": {row}".format(row=row))
@@ -110,7 +110,7 @@ def main():
     label = args.label
     app = App(uri, user, password, name, label)
 
-    #example run:   ./using_args.py -label Person -name Katie
+    #example run:   ./with_arguments.py -label Person -name Katie
     app.remove_node(args.label, args.name)
     app.create_node(label, name)
     app.find_node(label, name)
