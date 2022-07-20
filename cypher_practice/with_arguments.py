@@ -25,7 +25,7 @@ class App():
                 print("Created ", label, ": {row}".format(row=row))
 
     @staticmethod
-    def _create_and_return_node(tx, label, name):
+    def _create_and_return_node(tx, label, name):   
         if label == 'Person':
             query = (
                 "CREATE (p:Person {name: $name})"

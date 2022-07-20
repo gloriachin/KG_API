@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''
+''' 
 @authors: Neo4j AuraDB (https://console.neo4j.io/#databases/88d63c49/detail),  additions from Katie Christensen
 
 Practice working with the Cypher query language
@@ -75,7 +75,7 @@ class App:
         return [row["name"] for row in result]
 
 def main():
-    uri = "neo4j+s://88d63c49.databases.neo4j.io" # Aura queries use an encrypted connection using the "neo4j+s" URI scheme
+    uri = "neo4j+s://88d63c49.databases.neo4j.io:" # Aura queries use an encrypted connection using the "neo4j+s" URI scheme
     user = "neo4j"
     
     path = '../../password.txt'
