@@ -16,7 +16,7 @@ class App:
 
     def close(self):
         self.driver.close()
-
+  
     def create_friendship(self, person1_name, person2_name):
         with self.driver.session() as session:
             # Write transactions allow the driver to handle retries and transient errors
