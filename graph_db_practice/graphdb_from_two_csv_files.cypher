@@ -6,8 +6,8 @@
 // attach the properties from each file to the nodes and relationships. 
 
 
-CREATE CONSTRAINT ON (g:Gene) ASSERT g.Name IS UNIQUE;
-CREATE CONSTRAINT ON (d:Drug) ASSERT d.Name IS UNIQUE;
+CREATE CONSTRAINT FOR (g:Gene) REQUIRE g.Name IS UNIQUE;
+CREATE CONSTRAINT FOR (d:Drug) REQUIRE d.Name IS UNIQUE;
 
 
 USING PERIODIC COMMIT
