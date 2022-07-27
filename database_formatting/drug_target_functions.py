@@ -2,7 +2,7 @@
 import pandas as pd
 import math
 
-class KGI_Formatting:
+class drug_target_format:
     #Import data
     gene_list = pd.read_csv('C:/Users/emily/OneDrive/Documents/Drug ID/gene_data.tsv', sep = '\t') #this file contains NCBI gene names, ids, and more
     final_csv = pd.DataFrame()
