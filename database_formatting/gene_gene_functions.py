@@ -1,5 +1,6 @@
 #Import libraries
 import pandas as pd
+import math
 
 class gene_gene_format:
     #Import data
@@ -57,6 +58,8 @@ class gene_gene_format:
             name_index = self.binary_search(symbol_list, node1[i])
             if name_index >= 0:
                 subject_id = self.ncbi_list.iloc[name_index, 10]
+                if math.isnan(subject_id) == False:
+                    subject_id = int(subject_id)
             else:
                 subject_id = 'N/A'
             self.subject_ids.append(subject_id)
@@ -86,6 +89,8 @@ class gene_gene_format:
             name_index = self.binary_search(symbol_list, node2[i])
             if name_index >= 0:
                 object_id = self.ncbi_list.iloc[name_index, 10]
+                if math.isnan(subject_id) == False:
+                    subject_id = int(subject_id)
             else:
                 object_id = 'N/A'
             self.object_ids.append(object_id)
@@ -113,74 +118,69 @@ class gene_gene_format:
 
             if 'down-regulates' in edge:
                 if 'destabilization' in edge:
-                    predicate += 'decreases abundance of;'
+                    predicate += 'decreases abundance of'
                 elif 'quantity :' in edge:
-                    predicate += 'negatively regulates;decreases abundance of;'
+                    predicate += 'decreases abundance of'
+                elif 'repression' in edge:
+                    predicate += 'decreases amount or activity of'
                 else:
-                    predicate += 'negatively regulates;'
-                if 'repression' in edge:
-                    predicate += 'decreases amount or activity of;'
+                    predicate += 'negatively regulates'
 
             elif 'up-regulates' in edge:
                 if 'activity' in edge:
-                    predicate += 'increases activity of;'
+                    predicate += 'increases activity of'
                 elif 'quantity' in edge:
-                    predicate += 'increases abundance of;'
+                    predicate += 'increases abundance of'
                 else:
-                    predicate += 'positively regulates;'
+                    predicate += 'positively regulates'
 
             elif 'compound' in edge:
                 if 'activation' in edge:
-                    predicate += 'increases activity of;'
+                    predicate += 'increases activity of'
                 else:
-                    predicate += 'positively correlated with;'
+                    predicate += 'positively correlated with'
 
             elif 'activation' in edge:
                 if 'tf' in edge:
-                    predicate += 'increases expression of;'
+                    predicate += 'increases expression of'
                 else:
-                    predicate += 'increases activity of;'
-
-                if any(process in edge for process in processes_list):
-                    predicate += 'affects molecular modification of;'
+                    predicate += 'increases activity of'
 
             elif 'inhibition' in edge:
                 if 'ubiquitination' in edge:
-                    predicate += 'decreases expression of;'
+                    predicate += 'decreases expression of'
                 else:
-                    predicate += 'decreases activity of;'
-                if any(process in edge for process in processes_list):
-                    predicate += 'affects molecular modification of;'
+                    predicate += 'decreases activity of'
             
             elif 'repression' in edge:
                 if 'tf' in edge:
-                    predicate += 'decreases expression of;'
+                    predicate += 'decreases expression of'
                 else:
-                    predicate += 'decreases activity of;'
+                    predicate += 'decreases activity of'
 
             elif 'expression' in edge:
-                predicate += 'affects expression of;'
+                predicate += 'affects expression of'
 
             elif any(relationship in edge for relationship in ['binding/association', 'ppi']):
-                predicate += 'physically interacts with;'
+                predicate += 'physically interacts with'
 
             elif 'binding' in edge:
-                predicate += 'binds;'
+                predicate += 'binds'
 
             elif 'dissociation' in edge:
-                predicate += 'negatively correlates with;'
+                predicate += 'negatively correlates with'
 
             elif 'indirect effect' in edge:
                 if 'phosphorylation' in edge:
-                    predicate += 'affects molecular modification of;'
+                    predicate += 'affects molecular modification of'
                 else:
-                    predicate += 'affects;'
+                    predicate += 'affects'
             
             elif any(process in edge for process in processes_list):
-                predicate += 'affects molecular modification of;'
+                predicate += 'affects molecular modification of'
 
             elif 'tf' in edge:
-                predicate += 'affects expression of;'
+                predicate += 'affects expression of'
 
             else:
                 predicate += 'N/A'
