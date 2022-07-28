@@ -50,7 +50,7 @@ CREATE CONSTRAINT FOR (d:Drug) REQUIRE d.Name IS UNIQUE;
 
 USING PERIODIC COMMIT
 LOAD CSV WITH HEADERS 
-FROM 'file:///demo.csv' AS row
+FROM 'file:///demo.csv' AS row #change 'demo.csv' to your filename
 
 MERGE (drug:Drug {Name: line.DRUG_NAME})
 SET drug.Synonyms = line.Synonyms
