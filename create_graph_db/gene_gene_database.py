@@ -38,7 +38,7 @@ def main():
 
     qString= """
         MATCH (g:Gene) RETURN g
-        """.format(gene=gene)
+        """.format()
     
     connection.query(qString, db='neo4j')
 
