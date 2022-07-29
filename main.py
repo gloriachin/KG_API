@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from neo4j import GraphDatabase
-class apiP:
-    
+
+class apiP:    
     def __init__(self, uri, user, pwd):
         self.__uri = uri
         self.__user = user
