@@ -1,5 +1,5 @@
-from neo4j import GraphDatabase
 from fastapi import FastAPI
+from neo4j import GraphDatabase
 class apiP:
     
     def __init__(self, uri, user, pwd):
@@ -29,7 +29,6 @@ class apiP:
             if session is not None:
                 session.close()
         return response
-    
 
 connection = apiP("neo4j+s://31d29394.databases.neo4j.io","neo4j","hn6p3tQaDFPWemO1JzDnGd0PrzXOWN62uv2hYKihP7g") 
 
@@ -38,6 +37,7 @@ app=FastAPI()
 @app.get('/')
 def root():
     return {'root': 'you are in the root of the api'}
+
 @app.get('/GresDrug')
 async def read_item(lim: int = 10, drug= str):
         qString= """
@@ -48,6 +48,7 @@ async def read_item(lim: int = 10, drug= str):
     
         result = connection.query(qString, db='neo4j')
         return {"Genes": result} ## this works fine 1
+
 @app.get('/GsensitiveY')
 async def count(drug: str, lim: int = 10):
         qString = """
@@ -56,18 +57,21 @@ async def count(drug: str, lim: int = 10):
         return g limit {lim}
         """.format(drug=drug, lim=lim)
         return {"Genes": connection.query(qString, db='neo4j')}
+
 @app.get('/DrugTGene')
 async def count(lim: int = 20, gene= str):
         qString = """
         match (d:Drug)-[rel:Targets]->(g:Gene) where g.Target = '{gene}' return d limit {lim} 
         """.format(lim=lim, gene= gene)
         return {"Drugs": connection.query(qString, db='neo4j')}
+
 @app.get('/GTargetsForDrug')
 async def count(lim: int = 10, drug= str):
         qString = """
         match (d:Drug)-[rel:Targets]->(g:Gene) where d.Drug = '{drug}' return g limit {lim} 
         """.format(lim=lim, drug = drug)
         return {"Genes": connection.query(qString, db='neo4j')} 
+
 @app.get('/GwithSaR')
 async def count(lim: int = 10, drug = str):
         qString = """
@@ -78,10 +82,12 @@ async def count(lim: int = 10, drug = str):
         return g limit {lim}
         """.format(lim=lim, drug = drug)
         return {"Genes": connection.query(qString, db='neo4j')}
+
 @app.get('/Genes')
 async def genes(lim:int = 20):
     qString = "match (g:Gene) return g limit  {lim}".format(lim=lim)
     return {"Genes": connection.query(qString, db='neo4j')}
+
 @app.get('/Drugs')
 async def genes(lim:int = 20):
     qString = "match (d:Drug) return d limit  {lim}".format(lim=lim)
