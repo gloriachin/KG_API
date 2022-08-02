@@ -87,33 +87,8 @@ SET t.Disease = line.Disease,
 
     ii. This is helpful for double checking that your Cypher code for creating the database was correct, and the graph is actually designed the way you intended it to be.
 
-#### Export your Database as CSV
-
-1. In Neo4j Desktop, click on your DBMS to open the 'Manage' screen. Choose 'Plugins', and install 'APOC' (wait until you see the 'installed' message).
-    
-    i. Refer to the documentation [here](https://neo4j.com/labs/apoc/4.2/installation/)
-
-2. Create the ‘apoc.conf’ file. 
-
-	i. Open the DBMS folder by hovering over your DBMS and clicking the three dots (…). Choose ‘Open Folder’ then ‘Configuration’. The conf folder will open and you should see the "neo4j.conf" file. 
-    
-    ii. Create a new file and name it ‘apoc.conf’. Do this by opening a notepad, or follow this path in your terminal and use your favorite text editor. In your new file, enter the following 3 lines, save, and exit.
-
-        ```python
-		apoc.import.file.enabled=true
-		apoc.import.file.use_neo4j_config=true
-        apoc.export.file.enabled=true
-        ```
-        
-    iii. Restart your DBMS by clicking ‘Stop’ and then ‘Start’.
-
-    iv. Refer to the documentation [here](https://neo4j.com/labs/apoc/4.2/export/csv/) 
-
-3. Hover over your DBMS and click 'Open', Neo4j Browser will open. Enter the following query to export your entire dbms as a csv file. Your new file will be located in the 'import' folder of your DBMS. Easy access by repeating step 1 in this section, but instead of choosing the 'Configuration' folder, open the 'import' folder, and your csv file should be right there!
-
-    ```python
-    CALL apoc.export.csv.all("your_new_filename_here.csv", {})
-    ```
+#### Future Steps
+Exporting the database from Neo4j Desktop into Google Cloud.
 
 #### Additional Links
 If further explanation is needed, follow [this](https://neo4j.com/developer/desktop-csv-import/#loadcsv-desktop) tutorial from Neo4j for more help. 
