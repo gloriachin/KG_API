@@ -41,9 +41,9 @@ def root():
 @app.get('/GresDrug')
 async def read_item(lim: int = 10, drug= str):
         qString= """
-        match (d:Drug)-[rel:Predicate]->(g:Gene) 
-        where rel.Predicate = 'biolink:associated with resistance to' and d.Object = '{drug}'
-        return g limit {lim}
+        MATCH (d:Drug)-[rel:Predicate]->(g:Gene) 
+        WHERE rel.Predicate = 'biolink:associated with resistance to' and d.Object = '{drug}'
+        RETURN g limit {lim}
         """.format(lim=lim, drug=drug)
     
         result = connection.query(qString, db='neo4j')
@@ -52,44 +52,44 @@ async def read_item(lim: int = 10, drug= str):
 @app.get('/GsensitiveY')
 async def count(drug: str, lim: int = 10):
         qString = """
-        match (d:Drug)-[rel:Predicate]->(g:Gene) 
-        where rel.Predicate = 'biolink:associated with sensitivity to' and d.Object = '{drug}'
-        return g limit {lim}
+        MATCH (d:Drug)-[rel:Predicate]->(g:Gene) 
+        WHERE rel.Predicate = 'biolink:associated with sensitivity to' and d.Object = '{drug}'
+        RETURN g limit {lim}
         """.format(drug=drug, lim=lim)
         return {"Genes": connection.query(qString, db='neo4j')}
 
 @app.get('/DrugTGene')
 async def count(lim: int = 20, gene= str):
         qString = """
-        match (d:Drug)-[rel:Targets]->(g:Gene) where g.Target = '{gene}' return d limit {lim} 
+        MATCH (d:Drug)-[rel:Targets]->(g:Gene) WHERE g.Target = '{gene}' RETURN d limit {lim} 
         """.format(lim=lim, gene= gene)
         return {"Drugs": connection.query(qString, db='neo4j')}
 
 @app.get('/GTargetsForDrug')
 async def count(lim: int = 10, drug= str):
         qString = """
-        match (d:Drug)-[rel:Targets]->(g:Gene) where d.Drug = '{drug}' return g limit {lim} 
+        MATCH (d:Drug)-[rel:Targets]->(g:Gene) WHERE d.Drug = '{drug}' RETURN g limit {lim} 
         """.format(lim=lim, drug = drug)
         return {"Genes": connection.query(qString, db='neo4j')} 
 
 @app.get('/GwithSaR')
 async def count(lim: int = 10, drug = str):
         qString = """
-        match (d:Drug)-[rel:Targets]->(g:Gene) where d.Drug = '{drug}' 
-        with d.Drug as drug, g.Target as gene  
-        match (d:Drug)-[rel:Predicate]->(g:Gene) 
-        where rel.Predicate = 'biolink:associated with sensitivity to' and d.Object = drug and g.Subject = gene  
-        return g limit {lim}
+        MATCH (d:Drug)-[rel:Targets]->(g:Gene) WHERE d.Drug = '{drug}' 
+        WITH d.Drug as drug, g.Target AS gene  
+        MATCH (d:Drug)-[rel:Predicate]->(g:Gene) 
+        WHERE rel.Predicate = 'biolink:associated with sensitivity to' and d.Object = drug and g.Subject = gene  
+        RETURN g limit {lim}
         """.format(lim=lim, drug = drug)
         return {"Genes": connection.query(qString, db='neo4j')}
 
 @app.get('/Genes')
 async def genes(lim:int = 20):
-    qString = "match (g:Gene) return g limit  {lim}".format(lim=lim)
+    qString = "MATCH (g:Gene) RETURN g limit  {lim}".format(lim=lim)
     return {"Genes": connection.query(qString, db='neo4j')}
 
 @app.get('/Drugs')
 async def genes(lim:int = 20):
-    qString = "match (d:Drug) return d limit  {lim}".format(lim=lim)
+    qString = "MATCH (d:Drug) RETURN d limit  {lim}".format(lim=lim)
     return {"Drugs": connection.query(qString, db='neo4j')}
 # match (d:Drug)-[rel:Targets]->(g:Gene) where d.Drug = 'Paclitaxel' with d.Drug as drug, g.Target as gene  match (d:Drug)-[rel:Predicate]->(g:Gene) where rel.Predicate = 'biolink:associated with sensitivity to' and d.Object = drug and g.Subject = gene  return g limit 10

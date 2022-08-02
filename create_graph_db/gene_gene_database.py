@@ -1,10 +1,12 @@
+#!/usr/bin/env python3 
+
 from neo4j import GraphDatabase
 
 class ConnectGraphDatabase:
     def __init__(self, uri, user, password):
         self.driver = None
         try:
-            self.driver = GraphDatabase.driver(uri, auth=(user, password))
+            self.driver = GraphDatabase.driver(uri, auth=(user, password), encrypted=True, trust='TRUST_ALL_CERTIFICATES')
         except Exception as e:
             print("Could not create the driver", e)
         
@@ -27,35 +29,28 @@ class ConnectGraphDatabase:
         return response
 
 def main():
-    uri = "bolt://34.133.105.26:7687"
+    uri = "bolt://34.133.105.26:7687"  #external IP
+    #uri = 'bolt://10.128.0.8:7687'    #internal IP
     user = "neo4j"
-    password = 'your password here'
+    password = 'GeneData'
 
     connection = ConnectGraphDatabase(uri, user, password)
 
-    constraint_query= """
-            CREATE CONSTRAINT FOR (g:Gene) REQUIRE g.Symbol IS UNIQUE;
-            """.format()
+    constraint_query= 'CREATE CONSTRAINT FOR (g:Gene) REQUIRE g.Symbol IS UNIQUE;'
 
-    db_query= """
-            USING PERIODIC COMMIT
-            LOAD CSV WITH HEADERS
-            FROM 'file:///gene_gene_final.csv' AS row
-            
-            MERGE (subject:Gene {Symbol: row.subject_symbol})
-            SET subject.ID = row.subject_id,
-                subject.Prefixes = row.subject_id_prefixes
-            
-            MERGE (object:Gene {Symbol: row.object_symbol})
-            SET object.ID = row.object_id,
-                object.Prefixes = row.object_id_prefixes
-            
-            CREATE (subject)-[p:ASSOCIATION]->(object)
-            SET p.Name = row.predicate,
-                p.Publications = row.ASSOCIATION_Publications
-            
-            ;
-            """.format()
+    db_query= 'USING PERIODIC COMMIT \
+            LOAD CSV WITH HEADERS \
+            FROM \'file:///gene_gene_final.csv\' AS row \
+            MERGE (subject:Gene {Symbol: row.subject_symbol}) \
+            SET subject.ID = row.subject_id, \
+                subject.Prefixes = row.subject_id_prefixes \
+            MERGE (object:Gene {Symbol: row.object_symbol}) \
+            SET object.ID = row.object_id, \
+                object.Prefixes = row.object_id_prefixes \
+            CREATE (subject)-[p:ASSOCIATION]->(object) \
+            SET p.Name = row.predicate, \
+                p.Publications = row.ASSOCIATION_Publications \
+            ;'
     
     connection.query(constraint_query, db='neo4j')
     connection.query(db_query, db='neo4j')
