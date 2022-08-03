@@ -1,8 +1,7 @@
 CREATE CONSTRAINT FOR (g:Gene) REQUIRE g.Symbol IS UNIQUE;
 
-USING PERIODIC COMMIT
 LOAD CSV WITH HEADERS
-FROM 'file:///edges_test.csv' AS row
+FROM 'https://storage.cloud.google.com/gene_data_csv_files/edges_test.csv' AS row
 
 MERGE (subject:Gene {Symbol: row.subject_symbol})
 SET subject.ID = row.subject_id,
@@ -20,7 +19,7 @@ SET p.Name = row.predicate,
 
 ;
 
-// the following doesn't work because I get an error on the WHERE clause
+// the following doesn't work because I get an error on the WHERE clause:
 //CREATE (subject)-[p:PHYSICALLY_INTERACTS_WITH]->(object)
 //WHERE row.predicate CONTAINS 'physically interacts with'
 //SET p.Publications = row.ASSOCIATION_Publications

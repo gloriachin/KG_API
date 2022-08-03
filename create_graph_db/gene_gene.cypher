@@ -2,7 +2,7 @@ CREATE CONSTRAINT FOR (g:Gene) REQUIRE g.Symbol IS UNIQUE;
 
 USING PERIODIC COMMIT
 LOAD CSV WITH HEADERS
-FROM 'file:///gene_gene_final.csv' AS row
+FROM 'file:///clean_gene_gene.csv' AS row
 
 MERGE (subject:Gene {Symbol: row.subject_symbol})
 SET subject.ID = row.subject_id,
