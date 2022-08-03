@@ -29,16 +29,15 @@ class ConnectGraphDatabase:
         return response
 
 def main():
-    uri = "bolt://34.133.105.26:7687"  #external IP
-    #uri = 'bolt://10.128.0.8:7687'    #internal IP
+    uri = "neo4j://34.171.95.111:7687"
     user = "neo4j"
-    password = 'GeneData'
+    password = "GeneData"
 
     connection = ConnectGraphDatabase(uri, user, password)
 
-    constraint_query= 'CREATE CONSTRAINT FOR (g:Gene) REQUIRE g.Symbol IS UNIQUE;'
+    constraint_query= "CREATE CONSTRAINT FOR (g:Gene) REQUIRE g.Symbol IS UNIQUE;"
 
-    db_query= 'USING PERIODIC COMMIT \
+    db_query= "USING PERIODIC COMMIT \
             LOAD CSV WITH HEADERS \
             FROM \'file:///clean_gene_gene.csv\' AS row \
             MERGE (subject:Gene {Symbol: row.subject_symbol}) \
@@ -50,7 +49,7 @@ def main():
             CREATE (subject)-[p:ASSOCIATION]->(object) \
             SET p.Name = row.predicate, \
                 p.Publications = row.ASSOCIATION_Publications \
-            ;'
+            ;"
     
     connection.query(constraint_query, db='neo4j')
     connection.query(db_query, db='neo4j')
