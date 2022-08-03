@@ -48,9 +48,8 @@ def main():
         SET object.ID = row.object_id, \
             object.Prefixes = row.object_id_prefixes, \
             object.Category = row.object_category \
-        CREATE (subject)-[p:ASSOCIATION]->(object) \
-        SET p.Name = row.predicate, \
-            p.Publications = row.ASSOCIATION_Publications \
+        CREATE (subject)-[p:PHYSICALLY_INTERACTS_WITH]->(object) \
+        SET p.Publications = row.ASSOCIATION_Publications \
         ;"
     
     connection.query(constraint_query, db='neo4j')

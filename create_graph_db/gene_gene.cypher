@@ -2,7 +2,7 @@ CREATE CONSTRAINT FOR (g:Gene) REQUIRE g.Symbol IS UNIQUE;
 
 USING PERIODIC COMMIT
 LOAD CSV WITH HEADERS
-FROM 'file:///clean_gene_gene.csv' AS row
+FROM 'https://storage.googleapis.com/multiomics_provider_kp_data/BigGIM/Signaling/gene_gene_nodes.csv' AS row
 
 MERGE (subject:Gene {Symbol: row.subject_symbol})
 SET subject.ID = row.subject_id,

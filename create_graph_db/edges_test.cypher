@@ -1,7 +1,7 @@
-CREATE CONSTRAINT FOR (g:Gene) REQUIRE g.Symbol IS UNIQUE;
+CREATE CONSTRAINT gene_constraint FOR (g:Gene) REQUIRE g.Symbol IS UNIQUE;
 
 LOAD CSV WITH HEADERS
-FROM 'https://storage.cloud.google.com/gene_data_csv_files/edges_test.csv' AS row
+FROM 'https://storage.googleapis.com/testgqin/edges_test.csv' AS row
 
 MERGE (subject:Gene {Symbol: row.subject_symbol})
 SET subject.ID = row.subject_id,
@@ -13,9 +13,8 @@ SET object.ID = row.object_id,
     object.Prefixes = row.object_id_prefixes,
     object.Category = row.object_category
 
-CREATE (subject)-[p:ASSOCIATION]->(object)
-SET p.Name = row.predicate,
-    p.Publications = row.ASSOCIATION_Publications
+CREATE (subject)-[p:PHYSICALLY_INTERACTS_WITH]->(object)
+SET p.Publications = row.ASSOCIATION_Publications
 
 ;
 
