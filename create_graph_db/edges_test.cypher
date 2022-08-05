@@ -1,7 +1,7 @@
 CREATE CONSTRAINT gene_constraint FOR (g:Gene) REQUIRE g.Symbol IS UNIQUE;
 
 LOAD CSV WITH HEADERS
-FROM 'https://storage.googleapis.com/testgqin/edges_test.csv' AS row
+FROM 'https://storage.googleapis.com/testgqin/edges_test_underscores.csv' AS row
 
 MERGE (subject:Gene {Symbol: row.subject_symbol})
 SET subject.ID = row.subject_id,

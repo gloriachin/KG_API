@@ -12,10 +12,12 @@ SET subject.Chembl_ID = row.subject_id,
     subject.ID_Prefixes = row.subject_id_prefixes
 
 MERGE (object:Gene {Name: row.object_name})
-SET object.Chembl_ID = row.object_id,
-    object.Category = row.object_category,
-    object.Symbol = row.object_symbol,
-    object.ID_Prefixes = row.object_id_prefixes
+// SET object.Chembl_ID = row.object_id,
+//     object.Category = row.object_category,
+//     object.Symbol = row.object_symbol,
+//     object.ID_Prefixes = row.object_id_prefixes
+// ^ this will erase all of the properties already set for genes and overwrite them
+// I need to figure out how to add this property in addition to the already set ones !!
 
 CREATE (subject)-[p:TARGETS]->(object)
 SET p.Knowledge_Source = row.ASSOCIATION_Knowledge_source,
