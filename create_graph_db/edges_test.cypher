@@ -13,12 +13,13 @@ SET object.ID = row.object_id,
     object.Prefixes = row.object_id_prefixes,
     object.Category = row.object_category
 
-CREATE (subject)-[p:PHYSICALLY_INTERACTS_WITH]->(object)
-SET p.Publications = row.ASSOCIATION_Publications
+CREATE (subject)-[p:ASSOCIATED_WITH]->(object)
+SET p.Publications = row.ASSOCIATION_Publications,
+    p.Predicate = row.predicate 
 
 ;
 
-// the following doesn't work because I get an error on the WHERE clause:
-//CREATE (subject)-[p:PHYSICALLY_INTERACTS_WITH]->(object)
-//WHERE row.predicate CONTAINS 'physically interacts with'
-//SET p.Publications = row.ASSOCIATION_Publications
+// The goal would be to do something like:
+    // CREATE (subject)-[p:PHYSICALLY_INTERACTS_WITH]->(object)
+    // WHERE row.predicate = 'physically interacts with'
+    // SET p.Publications = row.ASSOCIATION_Publications
