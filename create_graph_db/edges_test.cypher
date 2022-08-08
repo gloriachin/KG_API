@@ -1,10 +1,5 @@
-// note to self: this file is good to go
-
-
-CREATE CONSTRAINT gene_constraint FOR (g:Gene) REQUIRE g.Symbol IS UNIQUE;
-
 LOAD CSV WITH HEADERS
-FROM 'https://storage.googleapis.com/testgqin/clean_edges_test.csv' AS row
+FROM 'https://storage.googleapis.com/testgqin/cleaned_edges_test.csv' AS row
 
 MERGE (subject:Gene {Symbol: toUpper(row.subject_symbol), ID: toInteger(row.subject_id), Prefixes: toUpper(row.subject_id_prefixes), Category: toUpper(row.subject_category)})
 
