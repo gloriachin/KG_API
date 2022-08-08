@@ -1,9 +1,11 @@
+// This file is in the Google server graph database!
+
 LOAD CSV WITH HEADERS 
 FROM 'https://storage.googleapis.com/testgqin/clean_chembl_drug_to_disease.csv' AS row
 
 MERGE (subject:Drug {Chembl_ID: toInteger(row.Subject_id), Category: toUpper(row.Subject_category), Prefixes: toUpper(row.Subject_id_prefixes)})
 
-MERGE (object:Disease {Chembl_ID: toInteger(row.Object_id), Category: toUpper(row.Object_category), Prefixes: toUpper(row.Object_id_prefixes)})
+MERGE (object:Disease {Chembl_ID: row.Object_id, Category: toUpper(row.Object_category), Prefixes: toUpper(row.Object_id_prefixes)})
 
 CREATE (subject)-[r:APPROVED_TO_TREAT]->(object)
 SET r.Knowledge_Source = row.ASSOCIATION_Knowledge_Source,
