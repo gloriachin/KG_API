@@ -13,3 +13,20 @@ SET r.Knowledge_Source = row.ASSOCIATION_Knowledge_Source,
     r.FDA_approval_status = row.ASSOCIATION_FDA_approval_status
 
 ;
+
+
+// adding Name property to these Drug and Disease nodes
+LOAD CSV WITH HEADERS
+FROM 'https://storage.googleapis.com/testgqin/with_names_chembl_drug_to_disease.csv' AS row
+
+WITH row
+
+MATCH (subject: Drug {Chembl_ID: toInteger(row.Subject_id)})
+SET subject.Name = toUpper(row.Subject_name)
+
+WITH row
+
+MATCH (object: Disease {Chembl_ID: row.Object_id})
+SET object.Name = toUpper(row.Object_name)
+
+;
