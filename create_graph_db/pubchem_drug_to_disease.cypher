@@ -1,5 +1,3 @@
-// This file is in the Google server graph database!
-
 LOAD CSV WITH HEADERS
 FROM 'https://storage.googleapis.com/testgqin/clean_pubchem_drug_to_disease.csv' AS row
 

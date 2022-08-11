@@ -1,13 +1,14 @@
-// This file is in the Google server graph database!
-
 CREATE INDEX ON :Gene(NCBI_ID);
 CREATE INDEX ON :Gene(Symbol);
 
+// create nodes
 LOAD CSV WITH HEADERS
 FROM 'https://storage.googleapis.com/testgqin/gene_gene_files/1clean_gene_gene.csv' AS row
 MERGE (subject:Gene {Symbol: toUpper(row.subject_symbol), NCBI_ID: toInteger(row.subject_id), Prefixes: toUpper(row.subject_id_prefixes), Predicate: toUpper(row.predicate)})
 MERGE (object:Gene {Symbol: toUpper(row.object_symbol), NCBI_ID: toInteger(row.object_id), Prefixes: toUpper(row.object_id_prefixes), Predicate: toUpper(row.predicate)})
 ;
+
+// create relationships
 
 LOAD CSV WITH HEADERS
 FROM 'https://storage.googleapis.com/testgqin/gene_gene_files/1clean_gene_gene.csv' AS row
@@ -135,4 +136,11 @@ MATCH (subject:Gene {Symbol: toUpper(row.subject_symbol), NCBI_ID: toInteger(row
 MATCH (object:Gene {Symbol: toUpper(row.object_symbol), NCBI_ID: toInteger(row.object_id), Prefixes: toUpper(row.object_id_prefixes)})
 WHERE subject.Predicate = "AFFECTS" AND object.Predicate = "AFFECTS"
 MERGE (subject)-[p:AFFECTS {Publications: toUpper(row.ASSOCIATION_Publications)}]->(object)
+;
+
+// remove Predicate property from nodes
+
+MATCH (g:Gene) 
+WHERE g.Predicate IS NOT NULL 
+REMOVE g.Predicate
 ;
