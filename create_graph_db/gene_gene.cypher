@@ -125,8 +125,8 @@ LOAD CSV WITH HEADERS
 FROM 'https://storage.googleapis.com/testgqin/gene_gene_files/1clean_gene_gene.csv' AS row
 MATCH (subject:Gene {Symbol: toUpper(row.subject_symbol), NCBI_ID: toInteger(row.subject_id), Prefixes: toUpper(row.subject_id_prefixes)})
 MATCH (object:Gene {Symbol: toUpper(row.object_symbol), NCBI_ID: toInteger(row.object_id), Prefixes: toUpper(row.object_id_prefixes)})
-WHERE subject.Predicate = "POSITIVELY CORRELATES WITH" AND object.Predicate = "POSITIVELY CORRELATES WITH"
-MERGE (subject)-[p:POSITIVELY_CORRELATES_WITH {Publications: toUpper(row.ASSOCIATION_Publications)}]->(object)
+WHERE subject.Predicate = "POSITIVELY CORRELATED WITH" AND object.Predicate = "POSITIVELY CORRELATED WITH"
+MERGE (subject)-[p:POSITIVELY_CORRELATED_WITH {Publications: toUpper(row.ASSOCIATION_Publications)}]->(object)
 ;
 
 LOAD CSV WITH HEADERS
