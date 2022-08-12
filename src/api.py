@@ -73,9 +73,16 @@ async def count(drug: str, lim: int = 10):
 
 @app.get('/DrugTGene')
 async def count(lim: int = 20, gene= str):
-        qString = """
-        MATCH (d:Drug)-[rel:TARGETS]->(g:Gene) WHERE g.Target = '{gene}' RETURN d limit {lim} 
-        """.format(lim=lim, gene= gene)
+        #qString = """
+        #MATCH (d:Drug)-[rel:TARGETS]->(g:Gene) WHERE g.Target = '{gene}' RETURN d limit {lim} 
+        #""".format(lim=lim, gene= gene)
+        #return connection.query(qString, db='neo4j')
+
+        qString = '''
+                MATCH (d:Drug)-[drugToGene]->(g:Gene)
+                WHERE g.Symbol = "TP53"
+                RETURN DISTINCT d, drugToGene;
+                '''.format(lim=lim)
         return connection.query(qString, db='neo4j')
 
 @app.get('/GTargetsForDrug')
