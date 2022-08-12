@@ -1,5 +1,6 @@
 import sys
 import json
+from unicodedata import category
 import pandas as pd
 from os import stat_result
 from pydantic import BaseModel
@@ -158,24 +159,12 @@ def query_KG(query,gene_List,Gene_id_type, Drug_list,Predicates_list,Attribute_l
     print(gene_List_format)
     Drug_list_format = ["'"+ str(x) + "'" for x in Drug_list]
     Predicates_list_format  = ["'"+ str(x) + "'" for x in Predicates_list]
-    Cypher = ''''''
 
-    if len(gene_List) > 0 and len(Drug_list) == 0 and len(Predicates_list) == 0:
-        if Gene_id_type.upper() == 'SYMBOL' : 
-                Cypher = '''
-                MATCH (d:Drug)-[drugToGene]->(g:Gene)
-                WHERE g.Symbol = {__Gene_list__}
-                RETURN DISTINCT d, drugToGene;
-                '''.format(__Gene_list__=gene_List_format)
-              
-        elif Gene_id_type.upper() == 'NCBI:GENEID':
-                Cypher = '''
-                MATCH (d:Drug)-[drugToGene]->(g:Gene)
-                WHERE g.NCBI_ID = {__Gene_list__}
-                RETURN DISTINCT d, drugToGene;
-                '''.format(__Gene_list__=gene_List_format)
-    else:
-        Cypher = ''''''
+    Cypher = '''
+    MATCH (a:{category_a})-[rel:{relationship_a_b}]->(b:{category_b})
+    WHERE a.{property_a} = {property_a_value} b.{property_b} = {property_b_value}
+    RETURN DISTINCT a, rel, b
+    '''.format(category_a=n00_list, relationship_a_b=e00_list, category_b=n01_list)
     
     print(Cypher)
     result = db.query(Cypher, db='neo4j')
