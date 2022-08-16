@@ -204,8 +204,6 @@ def parse_query(query:Query):
 def query_KG(query,db,string1,string2,string3,string4,string5):
     print("In query_KG")
 
-    response_query={}
-
     if (string4 != 'n00.=') & (string5 != 'n01.='):
         query = '''
             MATCH ({string1})-[{string2}]-({string3})
@@ -229,43 +227,56 @@ def query_KG(query,db,string1,string2,string3,string4,string5):
 
     print(query)
     result = db.query(query, db='neo4j')
+
+    response_message={}
     
-    response_query["message"] = {"query_graph":query.message.query_graph,
+    #response["message"] = {"query_graph":query.message.query_graph,
+    #
+    #                            "knowledge_graph":{"edges":{},
+    #                                                "nodes":{}}, 
+    #                            "results":{}}
 
-                                "knowledge_graph":{"edges":{},
-                                                    "nodes":{}}, 
-                                "results":{}}
+    response_message["query_graph"] = query
+    response_message["results"] = []
+    response_message["knowledge_graph"] =  {}
+    response_message["knowledge_graph"]["edges"] =  {}
+    response_message["knowledge_graph"]["nodes"] =  {}
 
-    for words in result:
-        response_query['message']['knowledge_graph']['edges'][words[0].Name + "-"+words[1].type ] = {
-                                                                                    "Subject_Chembl_ID": Optional[words[0].Chembl_ID],
-                                                                                    "Subject_NCBI_ID": Optional[words[0].NCBI_ID],
-                                                                                    "Subject_Name": Optional[words[0].Name],
-                                                                                    "Subject_Category": Optional[words[0].Category],
-                                                                                    "Subject_Synonym": Optional[words[0].Synonym],
-                                                                                    "Subject_Pubchem_ID": Optional[words[0].Pubchem_ID],
-                                                                                    "Subject_MONDO_ID": Optional[words[0].MONDO_ID],
-                                                                                    "Subject_Prefixes": Optional[words[0].Prefixes],
-                                                                                    "Subject_Symbol": Optional[words[0].Symbol],
+    for word in result:
+        response_message['knowledge_graph']['edges']["n00-n01"] = {
+                                                            "Edge_attribute_knowledge_source": Optional[word[1].Knowledge_Source],
+                                                            "Edge_attribute_publications": Optional[word[1].Publications],
+                                                            "Edge_attribute_provided_by": Optional[word[1].Provided_By],
+                                                            "Edge_attribute_FDA_approval_status": Optional[word[1].FDA_approval_status]
+                                                            }
 
-                                                                                    "Edge_attribute_knowledge_source": Optional[words[1].Knowledge_Source],
-                                                                                    "Edge_attribute_publications": Optional[words[1].Publications],
-                                                                                    "Edge_attribute_provided_by": Optional[words[1].Provided_By],
-                                                                                    "Edge_attribute_FDA_approval_status": Optional[words[1].FDA_approval_status],
-                                                                                    
-                                                                                    "Object_Chembl_ID": Optional[words[2].Chembl_ID],
-                                                                                    "Object_NCBI_ID": Optional[words[2].NCBI_ID],
-                                                                                    "Object_Name": Optional[words[2].Name],
-                                                                                    "Object_Category": Optional[words[2].Category],
-                                                                                    "Object_Synonym": Optional[words[2].Synonym],
-                                                                                    "Object_Pubchem_ID": Optional[words[2].Pubchem_ID],
-                                                                                    "Object_MONDO_ID": Optional[words[2].MONDO_ID],
-                                                                                    "Object_Prefixes": Optional[words[2].Prefixes],
-                                                                                    "Object_Symbol": Optional[words[2].Symbol]
-                                                                                    
-                                                                                     }
-    return(response_query)
+        response_message['knowledge_graph']['nodes']["n00"] = {
+                                                            "Subject_Chembl_ID": Optional[word[0].Chembl_ID],
+                                                            "Subject_NCBI_ID": Optional[word[0].NCBI_ID],
+                                                            "Subject_Name": Optional[word[0].Name],
+                                                            "Subject_Category": Optional[word[0].Category],
+                                                            "Subject_Synonym": Optional[word[0].Synonym],
+                                                            "Subject_Pubchem_ID": Optional[word[0].Pubchem_ID],
+                                                            "Subject_MONDO_ID": Optional[word[0].MONDO_ID],
+                                                            "Subject_Prefixes": Optional[word[0].Prefixes],
+                                                            "Subject_Symbol": Optional[word[0].Symbol]
+                                                            }
 
+        response_message['knowledge_graph']['nodes']["n01"] = {
+                                                            "Object_Chembl_ID": Optional[word[2].Chembl_ID],
+                                                            "Object_NCBI_ID": Optional[word[2].NCBI_ID],
+                                                            "Object_Name": Optional[word[2].Name],
+                                                            "Object_Category": Optional[word[2].Category],
+                                                            "Object_Synonym": Optional[word[2].Synonym],
+                                                            "Object_Pubchem_ID": Optional[word[2].Pubchem_ID],
+                                                            "Object_MONDO_ID": Optional[word[2].MONDO_ID],
+                                                            "Object_Prefixes": Optional[word[2].Prefixes],
+                                                            "Object_Symbol": Optional[word[2].Symbol] 
+                                                            }
+
+    response = {}
+    response["message"] = response_message
+    return(response)
 
 def Query_KG_all(json_query,db):
     result = parse_query(json_query)

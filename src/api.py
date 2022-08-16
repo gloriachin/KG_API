@@ -1,8 +1,5 @@
-# api.py
-# This file connects to our Google Cloud server, and allows us to query the graphs in the instance.
-# Run on the command line with: python3 -m uvicorn api:app --reload
-# New queries / endpoints can be made simply by writing new functions towards the end of this file. 
-# Authors: Omar Aziz, Katie Christensen
+# This file is no longer used and will eventually be deleted.
+# It is only here to allow us to reference the queries in it that we previously made.
 
 from neo4j import GraphDatabase
 from fastapi import FastAPI

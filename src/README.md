@@ -23,7 +23,7 @@ python3 -m uvicorn main:app --reload
             "subject": "n00",
             "object": "n01",
             "predicates": [
-              "biolink:targets"
+              "biolink:physically_interacts_with"
             ]
           }
         },
