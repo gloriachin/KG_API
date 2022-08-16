@@ -1,3 +1,5 @@
+// Note: this query was executed after the chembl_screened_compounds.cypher query was executed.
+
 LOAD CSV WITH HEADERS 
 FROM 'https://storage.googleapis.com/testgqin/clean_pubchem_screened_compounds.csv' AS line
 
