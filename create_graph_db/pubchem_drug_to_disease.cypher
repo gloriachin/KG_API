@@ -1,5 +1,5 @@
 LOAD CSV WITH HEADERS
-FROM 'https://storage.googleapis.com/testgqin/clean_pubchem_drug_to_disease.csv' AS row
+FROM 'https://storage.googleapis.com/testgqin/with_names_pubchem_drug_to_disease.csv' AS row
 
 MERGE (subject:Drug {Pubchem_ID: toInteger(row.Subject_id), Category: toUpper(row.Subject_category), Prefixes: toUpper(row.Subject_id_prefixes)})
 
