@@ -43,7 +43,7 @@ python3 -m uvicorn main:app --reload
             "ids": [
               "Symbol:\"BCL2\""
             ]
-          }
+          } 
         }
       }
     }
