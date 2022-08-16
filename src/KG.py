@@ -103,7 +103,7 @@ class Query(BaseModel):
     message: QueryMessage
 
 
-def parse_Query(query:Query):
+def parse_query(query:Query):
     result = {}
 
     nodes = Dict[str, EdgeParams] = query.message.query_graph.nodes # { "n00": { "categories": [ "biolink:Gene", ], "ids": [ "NCBI:64102" ],},  "n01": { "categories": [ "biolink:Drug"]}}
@@ -112,18 +112,18 @@ def parse_Query(query:Query):
     # Handle edges
     e00: EdgeParams = edges['e00']  # {"object": "n01", "predicates": [ "biolink:targets" ], "attributes":{"biolink:tumor_type":"GBM", "subject": "n00"}
     e00_predicates = []             # ["biolink:targets"]
-    e00_predicate_type = ''         # "targets"
-    e00_property = []               # "{"biolink:tumor_type":"GBM"
-    e00_property_type = ''          # "tumor_type"
+    e00_predicate_type = ''         # "TARGETS"
+    e00_property = []               # ["biolink:tumor_type":"GBM"]
+    e00_property_type = ''          # "TUMOR_TYPE"
     e00_property_value = ''         # "GBM"
 
     e00_predicates = e00.predicates 
-    e00_predicate_type = e00_predicates.split(':')[1] 
+    e00_predicate_type = e00_predicates.split(':')[1].upper()
 
     if e00.attributes is not None:
         e00_property = e00.attributes 
-        e00_property_type = e00_property.split(':')[0] 
-        e00_property_value = e00_property.split(':')[1] 
+        e00_property_type = e00_property.split(':')[0].split(':')[1].upper()
+        e00_property_value = e00_property.split(':')[1] #.upper()?
 
     # Handle node n00
     n00: NodeParams = nodes['n00']  # {"categories": [ "biolink:Gene", ], "ids": [ "NCBI:64102" ]}
@@ -143,16 +143,20 @@ def parse_Query(query:Query):
         n00_property_type = id.split(':')[0] 
         n00_property_value = id.split(':')[1] 
 
-    if n00_property_type != 'Symbol' & n00_property_type != 'Name':
+    if n00_property_type == 'Symbol' | n00_property_type == 'Name':
+        n00_property_value = n00_property_value.upper()
+    else:
         n00_property_type = n00_property_type + "_ID"
+        n00_property_value = int(n00_property_value)
+
 
     # Handle node n01
     n01: NodeParams = nodes['n01']  # {"categories": [ "biolink:Drug"]}
     n01_categories = []             # ["biolink:Drug"]
     n01_category_type = ''          # "Drug"
-    n01_ids = []
-    n01_property_type = ''
-    n01_property_value = ''
+    n01_ids = []                    # ["Name:Afatinib"]
+    n01_property_type = ''          # "Name"
+    n01_property_value = ''         # "AFATINIB"
     
     n01_categories = n01.categories 
     n01_category_type = n01_categories.split(':')[1] 
@@ -164,8 +168,11 @@ def parse_Query(query:Query):
         n01_property_type = id.split(':')[0]
         n01_property_value = id.split(':')[1]
 
-    if n01_property_type != 'Symbol' & n01_property_type != 'Name':
+    if n01_property_type == 'Symbol' | n01_property_type == 'Name':
+        n01_property_value = n01_property_value.upper()
+    else:
         n01_property_type = n01_property_type + "_ID"
+        n01_property_value = int(n01_property_value)
 
     string1 = 'n00:' + n00_category_type
     string2 = 'e00:' + e00_predicate_type
@@ -178,7 +185,11 @@ def parse_Query(query:Query):
     # RETURN DISTINCT n00, e00, n01
 
     # MATCH (n00:n00_category_type)-[e00:e00_predicate_type]-(n01:n01_category_type)
-    # WHERE n00.n00_property_type = n00_property_value AND n01.n01_property_type = n01_property_value
+    # WHERE n00.n00_property_type=n00_property_value AND n01.n01_property_type=n01_property_value
+    # RETURN DISTINCT n00, e00, n01
+
+    # MATCH (n00:Gene)-[e00:TARGETS]-(n01:Drug)
+    # WHERE n00.NCBI_ID=64102 AND n01.Name="AFATINIB"
     # RETURN DISTINCT n00, e00, n01
 
     result= {"string1": string1, "string2": string2, "string3": string3, "string4": string4,"string5": string5}
@@ -188,14 +199,29 @@ def parse_Query(query:Query):
 def query_KG(query,string1,string2,string3,string4,string5):
     response_query={}
 
-    Cypher = '''
-        MATCH ({string1})-[{string2}]-({string3})
-        WHERE {string4} AND {string5}
-        RETURN DISTINCT n00, e00, n01
-        '''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
-    
-    print(Cypher)
-    result = db.query(Cypher, db='neo4j')
+    if string4 != 'n00.=' & string5 != 'n01.=':
+        query = '''
+            MATCH ({string1})-[{string2}]-({string3})
+            WHERE {string4} AND {string5}
+            RETURN DISTINCT n00, e00, n01
+            '''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
+    elif string4 == 'n00.=':
+        query = '''
+            MATCH ({string1})-[{string2}]-({string3})
+            WHERE {string5}
+            RETURN DISTINCT n00, e00, n01
+            '''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
+    elif string5 == 'n01.=':
+        query = '''
+            MATCH ({string1})-[{string2}]-({string3})
+            WHERE {string4}
+            RETURN DISTINCT n00, e00, n01
+            '''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
+    else:
+        query = ''''''
+
+    print(query)
+    result = db.query(query, db='neo4j')
     
     response_query["message"] = {"query_graph":query.message.query_graph,
 
@@ -212,6 +238,6 @@ def query_KG(query,string1,string2,string3,string4,string5):
 
 
 def Query_KG_all(json_query):
-    result = parse_Query(json_query)
+    result = parse_query(json_query)
     df = query_KG(json_query, result['string1'], result['string2'], result['string3'],result['string4'], result['string5'])
     return(df)
