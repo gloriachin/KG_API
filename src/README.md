@@ -3,9 +3,9 @@ How to use our API right now:
 
 1) In the terminal, navigate to the src directory of this repo and enter:
 
-'''
+
 python3 -m uvicorn main:app --reload
-'''
+
 
 2) Click on the URL that is provided, or copy/paste it into your search engine. Type "/docs" to the end of the URL and hit enter. Should look something like: http://127.0.0.1:8000/docs
 
@@ -15,7 +15,6 @@ python3 -m uvicorn main:app --reload
 
 5) Enter this json query in the "Request body"
 
-'''
 {
     "message": {
       "query_graph": {
@@ -49,6 +48,6 @@ python3 -m uvicorn main:app --reload
       }
     }
   }
-'''
+  
 
 6) Click "Execute", scroll down to "Responses", and see the results of the query! 
