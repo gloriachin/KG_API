@@ -14,6 +14,7 @@ app = FastAPI()
 
 @app.post("/KG")
 async def query_knowledge_graph(json_query: KG.Query):
-    print(json_query)
-    result = KG.Query_KG_all(json_query)
+    db = KG.db_connect("neo4j://34.171.95.111:7687","neo4j","GeneData")
+    result = KG.Query_KG_all(json_query,db)
     return(result)
+    #return json_query

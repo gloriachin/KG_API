@@ -41,7 +41,7 @@ class db_connect:
                 session.close()
         return response
 
-db = db_connect("neo4j://34.171.95.111:7687","neo4j","GeneData")
+#db = db_connect("neo4j://34.171.95.111:7687","neo4j","GeneData")
 
 class EdgeParams(BaseModel):
     subject: str
@@ -104,11 +104,15 @@ class Query(BaseModel):
 
 
 def parse_query(query:Query):
+    print("In parse_query")
+    
     result = {}
-    print("hello")
 
-    nodes = Dict[str, EdgeParams] = query.message.query_graph.nodes # { "n00": { "categories": [ "biolink:Gene", ], "ids": [ "NCBI:64102" ],},  "n01": { "categories": [ "biolink:Drug"]}}
-    edges = Dict[str, EdgeParams] = query.message.query_graph.edges # { "e00": { "object": "n01", "predicates": [ "biolink:targets" ], "subject": "n00"}}
+    nodes = Dict[str, EdgeParams]
+    edges = Dict[str, EdgeParams]
+
+    nodes =  query.message.query_graph.nodes # { "n00": { "categories": [ "biolink:Gene", ], "ids": [ "NCBI:64102" ],},  "n01": { "categories": [ "biolink:Drug"]}}
+    edges =  query.message.query_graph.edges # { "e00": { "object": "n01", "predicates": [ "biolink:targets" ], "subject": "n00"}}
 
     # Handle edges
     e00: EdgeParams = edges['e00']  # {"object": "n01", "predicates": [ "biolink:targets" ], "attributes":{"biolink:tumor_type":"GBM", "subject": "n00"}
@@ -117,16 +121,16 @@ def parse_query(query:Query):
     e00_property = []               # ["biolink:tumor_type":"GBM"]
     e00_property_type = ''          # "TUMOR_TYPE"
     e00_property_value = ''         # "GBM"
-    subject_node = ''                    # n00
-    object_node = ''                     #n01
+    subject_node = ''               # "n00"
+    object_node = ''                # "n01"
 
     e00_predicates = e00.predicates 
-    e00_predicate_type = e00_predicates.split(':')[1].upper()
+    e00_predicate_type = e00_predicates[0].split(':')[1].upper()
 
     subject_node = e00.subject
     object_node = e00.object
 
-    if e00.attributes is not None:
+    if e00.attributes is not None: # this probably isn't correct like might have error splitting list but check this later. 
         e00_property = e00.attributes 
         e00_property_type = e00_property.split(':')[0].split(':')[1].upper()
         e00_property_value = e00_property.split(':')[1] #.upper()?
@@ -140,7 +144,7 @@ def parse_query(query:Query):
     subject_property_value = ''         # "64102"
 
     subject_categories = subject.categories 
-    subject_category_type = subject_categories.split(':')[1] 
+    subject_category_type = subject_categories[0].split(':')[1] 
 
     if subject.ids is not None:
         subject_ids = subject.ids 
@@ -149,12 +153,9 @@ def parse_query(query:Query):
         subject_property_type = id.split(':')[0] 
         subject_property_value = id.split(':')[1] 
 
-    if subject_property_type == 'Symbol' | subject_property_type == 'Name':
-        subject_property_value = '"' + subject_property_value.upper() + '"'
-    else:
+    if (subject_property_type != 'Symbol') & (subject_property_type != 'Name'):
         subject_property_type = subject_property_type + "_ID"
         subject_property_value = int(subject_property_value)
-
 
     # Handle node n01
     object: NodeParams = nodes[object_node]  # {"categories": [ "biolink:Drug"]}
@@ -165,7 +166,7 @@ def parse_query(query:Query):
     object_property_value = ''         # "AFATINIB"
     
     object_categories = object.categories 
-    object_category_type = object_categories.split(':')[1] 
+    object_category_type = object_categories[0].split(':')[1] 
 
     if object.ids is not None:
         object_ids = object.ids 
@@ -174,9 +175,7 @@ def parse_query(query:Query):
         object_property_type = id.split(':')[0]
         object_property_value = id.split(':')[1]
 
-    if object_property_type == 'Symbol' | object_property_type == 'Name':
-        object_property_value = '"' + object_property_value.upper() + '"'
-    else:
+    if (object_property_type != 'Symbol') & (object_property_type != 'Name'):
         object_property_type = object_property_type + "_ID"
         object_property_value = int(object_property_value)
 
@@ -202,22 +201,24 @@ def parse_query(query:Query):
     return(result)
 
 
-def query_KG(query,string1,string2,string3,string4,string5):
+def query_KG(query,db,string1,string2,string3,string4,string5):
+    print("In query_KG")
+
     response_query={}
 
-    if string4 != 'n00.=' & string5 != 'n01.=':
+    if (string4 != 'n00.=') & (string5 != 'n01.='):
         query = '''
             MATCH ({string1})-[{string2}]-({string3})
             WHERE {string4} AND {string5}
             RETURN DISTINCT n00, e00, n01
             '''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
-    elif string4 == 'n00.=':
+    elif (string4 == 'n00.='):
         query = '''
             MATCH ({string1})-[{string2}]-({string3})
             WHERE {string5}
             RETURN DISTINCT n00, e00, n01
             '''.format(string1=string1,string2=string2,string3=string3,string5=string5)
-    elif string5 == 'n01.=':
+    elif (string5 == 'n01.='):
         query = '''
             MATCH ({string1})-[{string2}]-({string3})
             WHERE {string4}
@@ -266,7 +267,7 @@ def query_KG(query,string1,string2,string3,string4,string5):
     return(response_query)
 
 
-def Query_KG_all(json_query):
+def Query_KG_all(json_query,db):
     result = parse_query(json_query)
-    df = query_KG(json_query, result['string1'], result['string2'], result['string3'],result['string4'], result['string5'])
+    df = query_KG(json_query, db, result['string1'], result['string2'], result['string3'],result['string4'], result['string5'])
     return(df)

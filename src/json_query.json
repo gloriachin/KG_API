@@ -1,0 +1,33 @@
+{
+    "message": {
+      "query_graph": {
+        "edges": {
+          "e00": {
+            "subject": "n00",
+            "object": "n01",
+            "predicates": [
+              "biolink:targets"
+            ]
+          }
+        },
+        "nodes": {
+          "n00": {
+            "categories": [
+              "biolink:Gene"
+            ],
+            "ids": [
+              "Symbol:\"TP53\""
+            ]
+          },
+          "n01": {
+            "categories": [
+              "biolink:Gene"
+            ],
+            "ids": [
+              "Symbol:\"BCL2\""
+            ]
+          }
+        }
+      }
+    }
+  }
