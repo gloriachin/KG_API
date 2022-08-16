@@ -1,16 +1,18 @@
+import re
 import sys
 import json
-from unicodedata import category
+import neo4j
 import pandas as pd
 from os import stat_result
 from pydantic import BaseModel
 from neo4j import GraphDatabase
+from unicodedata import category
 from typing import Optional, Dict, List, Any
 
-# This file is inspired by BigGIM.py in the BigGIM_fastapi GitHub repository 
+# BaseModels are from BigGIM.py in the BigGIM_fastapi GitHub repository 
 # Accessible at: https://github.com/gloriachin/BigGIM_fastapi/blob/main/src/BigGIM.py
 
-class api_connect:
+class db_connect:
     def __init__(self, uri, user, pwd):
         self.__uri = uri
         self.__user = user
@@ -19,14 +21,14 @@ class api_connect:
         try:
             self.__driver = GraphDatabase.driver(self.__uri, auth=(self.__user, self.__pwd), encrypted=False)
         except Exception as e:
-            print("Could not create the driver", e)
+            print("Failed to create the driver", e)
         
     def close(self):
         if self.__driver is not None:
             self.__driver.close()
         
     def query(self, query, db=None):
-        assert self.__driver is not None, "Could'nt make the driver"
+        assert self.__driver is not None, "Failed to create the driver"
         session = None
         response = None
         try: 
@@ -39,7 +41,7 @@ class api_connect:
                 session.close()
         return response
 
-db = api_connect("neo4j://34.171.95.111:7687","neo4j","GeneData")
+db = db_connect("neo4j://34.171.95.111:7687","neo4j","GeneData")
 
 class EdgeParams(BaseModel):
     subject: str
@@ -100,71 +102,97 @@ class ResponseMessage(BaseModel):
 class Query(BaseModel):
     message: QueryMessage
 
+
 def parse_Query(query:Query):
     result = {}
-    Drug_list = []
-    gene_list = []
-    Predicates_list = []
-    Attribute_list = []
-    Gene_id_type = ''
 
-    Edges_query: Dict[str, EdgeParams] = query.message.query_graph.edges
-    Nodes_query: Dict[str, NodeParams] = query.message.query_graph.nodes
+    nodes = Dict[str, EdgeParams] = query.message.query_graph.nodes # { "n00": { "categories": [ "biolink:Gene", ], "ids": [ "NCBI:64102" ],},  "n01": { "categories": [ "biolink:Drug"]}}
+    edges = Dict[str, EdgeParams] = query.message.query_graph.edges # { "e00": { "object": "n01", "predicates": [ "biolink:targets" ], "subject": "n00"}}
 
-    n00_nodes: NodeParams = Nodes_query['n00']
-    n01_nodes: NodeParams = Nodes_query['n01']
+    # Handle edges
+    e00: EdgeParams = edges['e00']  # {"object": "n01", "predicates": [ "biolink:targets" ], "attributes":{"biolink:tumor_type":"GBM", "subject": "n00"}
+    e00_predicates = []             # ["biolink:targets"]
+    e00_predicate_type = ''         # "targets"
+    e00_property = []               # "{"biolink:tumor_type":"GBM"
+    e00_property_type = ''          # "tumor_type"
+    e00_property_value = ''         # "GBM"
 
-    Query_Nodes0_Set = [] #Genes
-    Query_Nodes1_Set = [] #Drugs
-    if n00_nodes.ids is not None:
-        Query_Nodes0_Set = Query_Nodes0_Set + n00_nodes.ids
+    e00_predicates = e00.predicates 
+    e00_predicate_type = e00_predicates.split(':')[1] 
 
-    if n01_nodes.ids is not None:
-        Query_Nodes1_Set  = Query_Nodes1_Set + n01_nodes.ids
- 
-    Query_Nodes_Set_id_transformed = set() #Genes
+    if e00.attributes is not None:
+        e00_property = e00.attributes 
+        e00_property_type = e00_property.split(':')[0] 
+        e00_property_value = e00_property.split(':')[1] 
 
-    for i in Query_Nodes0_Set:
-        if 'SYMBOL' in i:
-            Gene_id_type = 'SYMBOL'
-            Query_Nodes_Set_id_transformed.add(i.split(':')[1])
-        else:
-            Query_Nodes_Set_id_transformed.add(i) ## Need conversation NCBIGENE
+    # Handle node n00
+    n00: NodeParams = nodes['n00']  # {"categories": [ "biolink:Gene", ], "ids": [ "NCBI:64102" ]}
+    n00_categories = []             # ["biolink:Gene"]
+    n00_category_type = ''          # "Gene"
+    n00_ids = []                    # ["NCBI:64102"]
+    n00_property_type = ''          # "NCBI"
+    n00_property_value = ''         # "64102"
 
-    gene_list = list(Query_Nodes_Set_id_transformed)
-    print(gene_list)
+    n00_categories = n00.categories 
+    n00_category_type = n00_categories.split(':')[1] 
 
-    #if len(Query_Nodes1_Set) > 0:
-    Drug_list = list(Query_Nodes1_Set)
-    #print(gene_list)
+    if n00.ids is not None:
+        n00_ids = n00.ids 
 
-    e00_edges: EdgeParams = Edges_query['e00']
-    Query_Edge_Set = []
-    Query_Edge_Set = Query_Edge_Set + e00_edges.predicates
-    Query_Edge_Set = set(Query_Edge_Set)
-    Predicates_list = list(Query_Edge_Set)
-    print(Predicates_list)
-    print(Drug_list)
-    if e00_edges.attributes is not None:
-        Query_Attribute_Set = e00_edges.attributes
-    else:
-        Query_Attribute_Set = set() 
-    Attribute_list = list(Query_Attribute_Set)
-    result= {"gene_List": gene_list, "Gene_id_type":Gene_id_type, "Drug_list":Drug_list, "Predicates_list":Predicates_list, "Attribute_list":Attribute_list}
+    for id in n00_ids:
+        n00_property_type = id.split(':')[0] 
+        n00_property_value = id.split(':')[1] 
+
+    if n00_property_type != 'Symbol' & n00_property_type != 'Name':
+        n00_property_type = n00_property_type + "_ID"
+
+    # Handle node n01
+    n01: NodeParams = nodes['n01']  # {"categories": [ "biolink:Drug"]}
+    n01_categories = []             # ["biolink:Drug"]
+    n01_category_type = ''          # "Drug"
+    n01_ids = []
+    n01_property_type = ''
+    n01_property_value = ''
+    
+    n01_categories = n01.categories 
+    n01_category_type = n01_categories.split(':')[1] 
+
+    if n01.ids is not None:
+        n01_ids = n01.ids 
+
+    for id in n01_ids:
+        n01_property_type = id.split(':')[0]
+        n01_property_value = id.split(':')[1]
+
+    if n01_property_type != 'Symbol' & n01_property_type != 'Name':
+        n01_property_type = n01_property_type + "_ID"
+
+    string1 = 'n00:' + n00_category_type
+    string2 = 'e00:' + e00_predicate_type
+    string3 = 'n01:' + n01_category_type
+    string4 = 'n00.' + n00_property_type + "=" + n00_property_value
+    string5 = 'n01.' + n01_property_type + "=" + n01_property_value
+
+    # MATCH ({string1})-[{string2}]-({string3})
+    # WHERE {string4} AND {string5}
+    # RETURN DISTINCT n00, e00, n01
+
+    # MATCH (n00:n00_category_type)-[e00:e00_predicate_type]-(n01:n01_category_type)
+    # WHERE n00.n00_property_type = n00_property_value AND n01.n01_property_type = n01_property_value
+    # RETURN DISTINCT n00, e00, n01
+
+    result= {"string1": string1, "string2": string2, "string3": string3, "string4": string4,"string5": string5}
     return(result)
 
-def query_KG(query,gene_List,Gene_id_type, Drug_list,Predicates_list,Attribute_list):
+
+def query_KG(query,string1,string2,string3,string4,string5):
     response_query={}
-    gene_List_format = ["'"+ str(x) + "'" for x in gene_List]
-    print(gene_List_format)
-    Drug_list_format = ["'"+ str(x) + "'" for x in Drug_list]
-    Predicates_list_format  = ["'"+ str(x) + "'" for x in Predicates_list]
 
     Cypher = '''
-    MATCH (a:{category_a})-[rel:{relationship_a_b}]->(b:{category_b})
-    WHERE a.{property_a} = {property_a_value} b.{property_b} = {property_b_value}
-    RETURN DISTINCT a, rel, b
-    '''.format(category_a=n00_list, relationship_a_b=e00_list, category_b=n01_list)
+        MATCH ({string1})-[{string2}]-({string3})
+        WHERE {string4} AND {string5}
+        RETURN DISTINCT n00, e00, n01
+        '''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
     
     print(Cypher)
     result = db.query(Cypher, db='neo4j')
@@ -185,5 +213,5 @@ def query_KG(query,gene_List,Gene_id_type, Drug_list,Predicates_list,Attribute_l
 
 def Query_KG_all(json_query):
     result = parse_Query(json_query)
-    df = query_KG(json_query, result['gene_List'], result['Gene_id_type'], result['Drug_list'],result['Predicates_list'], result['Attribute_list'])
+    df = query_KG(json_query, result['string1'], result['string2'], result['string3'],result['string4'], result['string5'])
     return(df)
