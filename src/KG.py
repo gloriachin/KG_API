@@ -210,13 +210,13 @@ def query_KG(query,string1,string2,string3,string4,string5):
             MATCH ({string1})-[{string2}]-({string3})
             WHERE {string5}
             RETURN DISTINCT n00, e00, n01
-            '''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
+            '''.format(string1=string1,string2=string2,string3=string3,string5=string5)
     elif string5 == 'n01.=':
         query = '''
             MATCH ({string1})-[{string2}]-({string3})
             WHERE {string4}
             RETURN DISTINCT n00, e00, n01
-            '''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
+            '''.format(string1=string1,string2=string2,string3=string3,string4=string4)
     else:
         query = ''''''
 
