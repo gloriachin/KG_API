@@ -78,11 +78,11 @@ async def count(lim: int = 20, gene= str):
         #""".format(lim=lim, gene= gene)
         #return connection.query(qString, db='neo4j')
 
-        qString = '''
-                MATCH (d:Drug)-[drugToGene]->(g:Gene)
-                WHERE g.Symbol = "TP53" OR g.Symbol = "BCL2"
-                RETURN DISTINCT d.Name, type(drugToGene), g
-                '''.format(lim=lim)
+        ## qString = '''
+        ##         MATCH (d:Drug)-[drugToGene]->(g:Gene)
+        ##         WHERE g.Symbol = "TP53" OR g.Symbol = "BCL2"
+        ##         RETURN DISTINCT d.Name, type(drugToGene), g
+        ##         '''.format(lim=lim)
 
         #qString = '''
         #    MATCH (disease:Disease {Name:{"OVARIAN CANCER"}})<-[diseaseToDrug:APPROVED_TO_TREAT]-(drug:Drug)
@@ -91,6 +91,14 @@ async def count(lim: int = 20, gene= str):
         #    WHERE drug.Name=d.Name
         #    RETURN DISTINCT disease, diseaseToDrug, d, drug, drugToGene, gene
         #    '''.format(lim=lim)
+
+        string1 = "d:Drug"
+        string2 = 'g.Symbol = "TP53"'
+        qString = '''
+                MATCH ({string1})-[drugToGene]->(g:Gene)
+                WHERE {string2} OR g.Symbol = "BCL2"
+                RETURN DISTINCT d.Name, type(drugToGene), g
+                '''.format(lim=lim, string1=string1,string2=string2)
 
         return connection.query(qString, db='neo4j')
 

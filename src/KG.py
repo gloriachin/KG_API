@@ -144,7 +144,7 @@ def parse_query(query:Query):
         n00_property_value = id.split(':')[1] 
 
     if n00_property_type == 'Symbol' | n00_property_type == 'Name':
-        n00_property_value = n00_property_value.upper()
+        n00_property_value = '"' + n00_property_value.upper() + '"'
     else:
         n00_property_type = n00_property_type + "_ID"
         n00_property_value = int(n00_property_value)
@@ -169,7 +169,7 @@ def parse_query(query:Query):
         n01_property_value = id.split(':')[1]
 
     if n01_property_type == 'Symbol' | n01_property_type == 'Name':
-        n01_property_value = n01_property_value.upper()
+        n01_property_value = '"' + n01_property_value.upper() + '"'
     else:
         n01_property_type = n01_property_type + "_ID"
         n01_property_value = int(n01_property_value)
@@ -177,8 +177,8 @@ def parse_query(query:Query):
     string1 = 'n00:' + n00_category_type
     string2 = 'e00:' + e00_predicate_type
     string3 = 'n01:' + n01_category_type
-    string4 = 'n00.' + n00_property_type + "=" + n00_property_value
-    string5 = 'n01.' + n01_property_type + "=" + n01_property_value
+    string4 = 'n00.' + n00_property_type + '=' + n00_property_value
+    string5 = 'n01.' + n01_property_type + '=' + n01_property_value
 
     # MATCH ({string1})-[{string2}]-({string3})
     # WHERE {string4} AND {string5}
