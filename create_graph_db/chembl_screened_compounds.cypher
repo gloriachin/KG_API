@@ -5,7 +5,7 @@ MERGE (subject:Drug {Name: toUpper(row.subject_name), Synonym: toUpper(row.subje
 SET subject.Chembl_ID = row.subject_id
 
 MERGE (object:Gene {Name: toUpper(row.object_name), Category: toUpper(row.object_category), Symbol: toUpper(row.object_symbol), Prefixes: toUpper(row.object_id_prefixes)})
-SET object.Chembl_ID = toInteger(row.object_id)
+SET object.NCBI_ID = toInteger(row.object_id)
 
 CREATE (subject)-[p:TARGETS]->(object)
 SET p.Knowledge_Source = toUpper(row.ASSOCIATION_Knowledge_source),

@@ -5,6 +5,6 @@ MATCH
     (subject:Drug {Name: toUpper(line.subject_name)}),
     (object:Gene {Name: toUpper(line.object_name)})
 SET subject.Pubchem_ID = toInteger(line.subject_id),
-    object.Pubchem_ID = toInteger(line.object_id)
+    object.NCBI_ID = toInteger(line.object_id)
 
 ;
