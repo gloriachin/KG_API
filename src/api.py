@@ -97,7 +97,7 @@ async def count(lim: int = 20, gene= str):
         qString = '''
                 MATCH ({string1})-[drugToGene]->(g:Gene)
                 WHERE {string2} OR g.Symbol = "BCL2"
-                RETURN DISTINCT d.Name, type(drugToGene), g
+                RETURN DISTINCT d, drugToGene, g limit  {lim}
                 '''.format(lim=lim, string1=string1,string2=string2)
 
         return connection.query(qString, db='neo4j')

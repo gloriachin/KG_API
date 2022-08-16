@@ -105,6 +105,7 @@ class Query(BaseModel):
 
 def parse_query(query:Query):
     result = {}
+    print("hello")
 
     nodes = Dict[str, EdgeParams] = query.message.query_graph.nodes # { "n00": { "categories": [ "biolink:Gene", ], "ids": [ "NCBI:64102" ],},  "n01": { "categories": [ "biolink:Drug"]}}
     edges = Dict[str, EdgeParams] = query.message.query_graph.edges # { "e00": { "object": "n01", "predicates": [ "biolink:targets" ], "subject": "n00"}}
@@ -116,9 +117,14 @@ def parse_query(query:Query):
     e00_property = []               # ["biolink:tumor_type":"GBM"]
     e00_property_type = ''          # "TUMOR_TYPE"
     e00_property_value = ''         # "GBM"
+    subject_node = ''                    # n00
+    object_node = ''                     #n01
 
     e00_predicates = e00.predicates 
     e00_predicate_type = e00_predicates.split(':')[1].upper()
+
+    subject_node = e00.subject
+    object_node = e00.object
 
     if e00.attributes is not None:
         e00_property = e00.attributes 
@@ -126,59 +132,59 @@ def parse_query(query:Query):
         e00_property_value = e00_property.split(':')[1] #.upper()?
 
     # Handle node n00
-    n00: NodeParams = nodes['n00']  # {"categories": [ "biolink:Gene", ], "ids": [ "NCBI:64102" ]}
-    n00_categories = []             # ["biolink:Gene"]
-    n00_category_type = ''          # "Gene"
-    n00_ids = []                    # ["NCBI:64102"]
-    n00_property_type = ''          # "NCBI"
-    n00_property_value = ''         # "64102"
+    subject: NodeParams = nodes[subject_node]  # {"categories": [ "biolink:Gene", ], "ids": [ "NCBI:64102" ]}
+    subject_categories = []             # ["biolink:Gene"]
+    subject_category_type = ''          # "Gene"
+    subject_ids = []                    # ["NCBI:64102"]
+    subject_property_type = ''          # "NCBI"
+    subject_property_value = ''         # "64102"
 
-    n00_categories = n00.categories 
-    n00_category_type = n00_categories.split(':')[1] 
+    subject_categories = subject.categories 
+    subject_category_type = subject_categories.split(':')[1] 
 
-    if n00.ids is not None:
-        n00_ids = n00.ids 
+    if subject.ids is not None:
+        subject_ids = subject.ids 
 
-    for id in n00_ids:
-        n00_property_type = id.split(':')[0] 
-        n00_property_value = id.split(':')[1] 
+    for id in subject_ids:
+        subject_property_type = id.split(':')[0] 
+        subject_property_value = id.split(':')[1] 
 
-    if n00_property_type == 'Symbol' | n00_property_type == 'Name':
-        n00_property_value = '"' + n00_property_value.upper() + '"'
+    if subject_property_type == 'Symbol' | subject_property_type == 'Name':
+        subject_property_value = '"' + subject_property_value.upper() + '"'
     else:
-        n00_property_type = n00_property_type + "_ID"
-        n00_property_value = int(n00_property_value)
+        subject_property_type = subject_property_type + "_ID"
+        subject_property_value = int(subject_property_value)
 
 
     # Handle node n01
-    n01: NodeParams = nodes['n01']  # {"categories": [ "biolink:Drug"]}
-    n01_categories = []             # ["biolink:Drug"]
-    n01_category_type = ''          # "Drug"
-    n01_ids = []                    # ["Name:Afatinib"]
-    n01_property_type = ''          # "Name"
-    n01_property_value = ''         # "AFATINIB"
+    object: NodeParams = nodes[object_node]  # {"categories": [ "biolink:Drug"]}
+    object_categories = []             # ["biolink:Drug"]
+    object_category_type = ''          # "Drug"
+    object_ids = []                    # ["Name:Afatinib"]
+    object_property_type = ''          # "Name"
+    object_property_value = ''         # "AFATINIB"
     
-    n01_categories = n01.categories 
-    n01_category_type = n01_categories.split(':')[1] 
+    object_categories = object.categories 
+    object_category_type = object_categories.split(':')[1] 
 
-    if n01.ids is not None:
-        n01_ids = n01.ids 
+    if object.ids is not None:
+        object_ids = object.ids 
 
-    for id in n01_ids:
-        n01_property_type = id.split(':')[0]
-        n01_property_value = id.split(':')[1]
+    for id in object_ids:
+        object_property_type = id.split(':')[0]
+        object_property_value = id.split(':')[1]
 
-    if n01_property_type == 'Symbol' | n01_property_type == 'Name':
-        n01_property_value = '"' + n01_property_value.upper() + '"'
+    if object_property_type == 'Symbol' | object_property_type == 'Name':
+        object_property_value = '"' + object_property_value.upper() + '"'
     else:
-        n01_property_type = n01_property_type + "_ID"
-        n01_property_value = int(n01_property_value)
+        object_property_type = object_property_type + "_ID"
+        object_property_value = int(object_property_value)
 
-    string1 = 'n00:' + n00_category_type
+    string1 = 'n00:' + subject_category_type
     string2 = 'e00:' + e00_predicate_type
-    string3 = 'n01:' + n01_category_type
-    string4 = 'n00.' + n00_property_type + '=' + n00_property_value
-    string5 = 'n01.' + n01_property_type + '=' + n01_property_value
+    string3 = 'n01:' + object_category_type
+    string4 = 'n00.' + subject_property_type + '=' + subject_property_value
+    string5 = 'n01.' + object_property_type + '=' + object_property_value
 
     # MATCH ({string1})-[{string2}]-({string3})
     # WHERE {string4} AND {string5}
@@ -231,8 +237,31 @@ def query_KG(query,string1,string2,string3,string4,string5):
 
     for words in result:
         response_query['message']['knowledge_graph']['edges'][words[0].Name + "-"+words[1].type ] = {
-                                                                                    "Pubchem_ID": words[0].Pubchem_ID
-                                                                                    #keep doing that for the rest of the stuff for drug and relationship
+                                                                                    "Subject_Chembl_ID": Optional[words[0].Chembl_ID],
+                                                                                    "Subject_NCBI_ID": Optional[words[0].NCBI_ID],
+                                                                                    "Subject_Name": Optional[words[0].Name],
+                                                                                    "Subject_Category": Optional[words[0].Category],
+                                                                                    "Subject_Synonym": Optional[words[0].Synonym],
+                                                                                    "Subject_Pubchem_ID": Optional[words[0].Pubchem_ID],
+                                                                                    "Subject_MONDO_ID": Optional[words[0].MONDO_ID],
+                                                                                    "Subject_Prefixes": Optional[words[0].Prefixes],
+                                                                                    "Subject_Symbol": Optional[words[0].Symbol],
+
+                                                                                    "Edge_attribute_knowledge_source": Optional[words[1].Knowledge_Source],
+                                                                                    "Edge_attribute_publications": Optional[words[1].Publications],
+                                                                                    "Edge_attribute_provided_by": Optional[words[1].Provided_By],
+                                                                                    "Edge_attribute_FDA_approval_status": Optional[words[1].FDA_approval_status],
+                                                                                    
+                                                                                    "Object_Chembl_ID": Optional[words[2].Chembl_ID],
+                                                                                    "Object_NCBI_ID": Optional[words[2].NCBI_ID],
+                                                                                    "Object_Name": Optional[words[2].Name],
+                                                                                    "Object_Category": Optional[words[2].Category],
+                                                                                    "Object_Synonym": Optional[words[2].Synonym],
+                                                                                    "Object_Pubchem_ID": Optional[words[2].Pubchem_ID],
+                                                                                    "Object_MONDO_ID": Optional[words[2].MONDO_ID],
+                                                                                    "Object_Prefixes": Optional[words[2].Prefixes],
+                                                                                    "Object_Symbol": Optional[words[2].Symbol]
+                                                                                    
                                                                                      }
     return(response_query)
 
