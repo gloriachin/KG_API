@@ -1,3 +1,4 @@
+ // 1)
 {
     "message": {
       "query_graph": {
@@ -25,6 +26,77 @@
             ],
             "ids": [
               "Symbol:\"BCL2\""
+            ]
+          }
+        }
+      }
+    }
+  }
+  
+
+  // 2)
+  {
+    "message": {
+      "query_graph": {
+        "edges": {
+          "e00": {
+            "subject": "n00",
+            "object": "n01",
+            "predicates": [
+              "biolink:targets"
+            ]
+          }
+        },
+        "nodes": {
+          "n00": {
+            "categories": [
+              "biolink:Drug"
+            ],
+            "ids": [
+              "Name:\"Paclitaxel\""
+            ]
+          },
+          "n01": {
+            "categories": [
+              "biolink:Gene"
+            ],
+            "ids": [
+              "Symbol:\"BCL2\""
+            ]
+          }
+        }
+      }
+    }
+  }
+
+  // 3)
+  {
+    "message": {
+      "query_graph": {
+        "edges": {
+          "e00": {
+            "subject": "n00",
+            "object": "n01",
+            "predicates": [
+              "biolink:approved_to_treat"
+            ]
+          }
+        },
+        "nodes": {
+          "n00": {
+            "categories": [
+              "biolink:Drug"
+            ],
+            "ids": [
+              "Name:\"Olaparib\""
+            ]
+          },
+          "n01": {
+            "categories": [
+              "biolink:Disease"
+            ],
+            "ids": [
+              "Name:\"Ovarian Cancer\""
             ]
           }
         }
