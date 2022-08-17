@@ -41,8 +41,6 @@ class db_connect:
                 session.close()
         return response
 
-#db = db_connect("neo4j://34.171.95.111:7687","neo4j","GeneData")
-
 class EdgeParams(BaseModel):
     subject: str
     object: str
@@ -208,7 +206,7 @@ def query_KG(query,db,string1,string2,string3,string4,string5):
         query = '''
             MATCH ({string1})-[{string2}]-({string3})
             WHERE {string4} AND {string5}
-            RETURN DISTINCT n00, e00, n01
+            RETURN DISTINCT n00, e00, n01 LIMIT 1
             '''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
     elif (string4 == 'n00.='):
         query = '''
@@ -243,35 +241,41 @@ def query_KG(query,db,string1,string2,string3,string4,string5):
     response_message["knowledge_graph"]["nodes"] =  {}
 
     for word in result:
+        print(word[0])
         response_message['knowledge_graph']['edges']["n00-n01"] = {
-                                                            "Edge_attribute_knowledge_source": Optional[word[1].Knowledge_Source],
-                                                            "Edge_attribute_publications": Optional[word[1].Publications],
-                                                            "Edge_attribute_provided_by": Optional[word[1].Provided_By],
-                                                            "Edge_attribute_FDA_approval_status": Optional[word[1].FDA_approval_status]
+                                                                "Subject": word[1],
+                                                                "Object": word[1],
+                                                                "Predicate": word[0],
+                                                                "Edge_attributes": {
+                                                                "Edge_attribute_publications": word[1],
+                                                                "Edge_attribute_knowledge_source": word[1],
+                                                                "Edge_attribute_provided_by": word[1],
+                                                                "Edge_attribute_FDA_approval_status": word[1] 
+                                                                }
                                                             }
 
         response_message['knowledge_graph']['nodes']["n00"] = {
-                                                            "Subject_Chembl_ID": Optional[word[0].Chembl_ID],
-                                                            "Subject_NCBI_ID": Optional[word[0].NCBI_ID],
-                                                            "Subject_Name": Optional[word[0].Name],
-                                                            "Subject_Category": Optional[word[0].Category],
-                                                            "Subject_Synonym": Optional[word[0].Synonym],
-                                                            "Subject_Pubchem_ID": Optional[word[0].Pubchem_ID],
-                                                            "Subject_MONDO_ID": Optional[word[0].MONDO_ID],
-                                                            "Subject_Prefixes": Optional[word[0].Prefixes],
-                                                            "Subject_Symbol": Optional[word[0].Symbol]
+                                                            "Subject_Category": word[0],
+                                                            "Subject_Name": word[0],
+                                                            "Subject_Symbol": word[0],
+                                                            "Subject_NCBI_ID": word[0],
+                                                            "Subject_MONDO_ID": word[0],
+                                                            "Subject_Chembl_ID": word[0],
+                                                            "Subject_Pubchem_ID": word[0],
+                                                            "Subject_Synonym": word[0],
+                                                            "Subject_Prefixes": word[0]
                                                             }
 
         response_message['knowledge_graph']['nodes']["n01"] = {
-                                                            "Object_Chembl_ID": Optional[word[2].Chembl_ID],
-                                                            "Object_NCBI_ID": Optional[word[2].NCBI_ID],
-                                                            "Object_Name": Optional[word[2].Name],
-                                                            "Object_Category": Optional[word[2].Category],
-                                                            "Object_Synonym": Optional[word[2].Synonym],
-                                                            "Object_Pubchem_ID": Optional[word[2].Pubchem_ID],
-                                                            "Object_MONDO_ID": Optional[word[2].MONDO_ID],
-                                                            "Object_Prefixes": Optional[word[2].Prefixes],
-                                                            "Object_Symbol": Optional[word[2].Symbol] 
+                                                            "Object_Chembl_ID": word[2],
+                                                            "Object_NCBI_ID": word[2],  
+                                                            "Object_Name": word[2],     
+                                                            "Object_Category": word[2], 
+                                                            "Object_Synonym": word[2],
+                                                            "Object_Pubchem_ID": word[2],
+                                                            "Object_MONDO_ID": word[2],
+                                                            "Object_Prefixes": word[2], 
+                                                            "Object_Symbol": word[2] 
                                                             }
 
     response = {}

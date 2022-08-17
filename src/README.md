@@ -33,7 +33,7 @@ python3 -m uvicorn main:app --reload
               "biolink:Gene"
             ],
             "ids": [
-              "Symbol:\"TP53\""
+              "Symbol:\\"TP53\\""
             ]
           },
           "n01": {
@@ -41,7 +41,7 @@ python3 -m uvicorn main:app --reload
               "biolink:Gene"
             ],
             "ids": [
-              "Symbol:\"BCL2\""
+              "Symbol:\\"BCL2\\""
             ]
           } 
         }

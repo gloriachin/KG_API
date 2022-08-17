@@ -1,0 +1,22 @@
+
+query = 
+MATCH (n00:Gene)-[e00:PHYSICALLY_INTERACTS_WITH]-(n01:Gene)
+            WHERE n00.Symbol="TP53" AND n01.Symbol="BCL2"
+            RETURN DISTINCT n00, e00, n01 LIMIT 2
+
+
+
+result = 
+[
+<Record n00=<Node id=35826 labels=frozenset({'Gene'}) properties={'Symbol': 'TP53', 'Prefixes': 'NCBI.GENE'}> 
+e00=<Relationship id=381845 nodes=(<Node id=35826 labels=frozenset({'Gene'}) properties={'Symbol': 'TP53', 'Prefixes': 'NCBI.GENE'}>, <Node id=31732 labels=frozenset({'Gene'}) properties={'Symbol': 'BCL2', 'Prefixes': 'NCBI.GENE'}>) type='PHYSICALLY_INTERACTS_WITH' properties={'Publications': '21859835'}> 
+n01=<Node id=31732 labels=frozenset({'Gene'}) properties={'Symbol': 'BCL2', 'Prefixes': 'NCBI.GENE'}>>, 
+
+<Record n00=<Node id=35826 labels=frozenset({'Gene'}) properties={'Symbol': 'TP53', 'Prefixes': 'NCBI.GENE'}> 
+e00=<Relationship id=381844 nodes=(<Node id=35826 labels=frozenset({'Gene'}) properties={'Symbol': 'TP53', 'Prefixes': 'NCBI.GENE'}>, <Node id=31732 labels=frozenset({'Gene'}) properties={'Symbol': 'BCL2', 'Prefixes': 'NCBI.GENE'}>) type='PHYSICALLY_INTERACTS_WITH' properties={'Publications': '11313951;17693666;19411072;20428827;9000137'}> 
+n01=<Node id=31732 labels=frozenset({'Gene'}) properties={'Symbol': 'BCL2', 'Prefixes': 'NCBI.GENE'}>>
+]
+
+
+word = 
+<Record n00=<Node id=35826 labels=frozenset({'Gene'}) properties={'Symbol': 'TP53', 'Prefixes': 'NCBI.GENE'}> e00=<Relationship id=381845 nodes=(<Node id=35826 labels=frozenset({'Gene'}) properties={'Symbol': 'TP53', 'Prefixes': 'NCBI.GENE'}>, <Node id=31732 labels=frozenset({'Gene'}) properties={'Symbol': 'BCL2', 'Prefixes': 'NCBI.GENE'}>) type='PHYSICALLY_INTERACTS_WITH' properties={'Publications': '21859835'}> n01=<Node id=31732 labels=frozenset({'Gene'}) properties={'Symbol': 'BCL2', 'Prefixes': 'NCBI.GENE'}>>
