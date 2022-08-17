@@ -2,7 +2,6 @@ import re
 import sys
 import json
 import neo4j
-import pandas as pd
 from os import stat_result
 from pydantic import BaseModel
 from neo4j import GraphDatabase
@@ -61,41 +60,6 @@ class QueryMessage(BaseModel):
 class KnowledgeGraph(BaseModel):
     nodes:Dict[str,NodeParams]
     edges:Dict[str,EdgeParams]
-class NodeBinding(BaseModel):
-    id: str
-
-class SubAttribute(BaseModel):
-   attribute_type_id: str
-   original_attribute_name: str
-   value: Any
-   value_type_id: str
-   attribute_source: str
-   value_url: str
-   description: str
-
-class Attribute(BaseModel):
-   attribute_type_id: str
-   original_attribute_name: str
-   value: Any
-   value_type_id: str
-   attribute_source: str
-   value_url: str
-   description: str
-   attributes: List[SubAttribute]
-
-class EdgeBinding(BaseModel):
-    id: str
-    attributes: List[Attribute]
-
-class ResultMessage(BaseModel):
-    node_bindings: Dict[str, List[NodeBinding]]
-    edge_bindings: Dict[str, List[EdgeBinding]]
-    score: float
-
-class ResponseMessage(BaseModel):
-    query_graph: QueryGraph
-    knowledge_graph: KnowledgeGraph
-    results: List[ResultMessage]
 
 class Query(BaseModel):
     message: QueryMessage
@@ -201,7 +165,7 @@ def parse_query(query:Query):
     return(result)
 
 
-def query_KG(query,db,string1,string2,string3,string4,string5):
+def query_KG(json_query,db,string1,string2,string3,string4,string5):
     if (string4 != 'n00.=') & (string5 != 'n01.='):
         query = ''' MATCH ({string1})-[{string2}]-({string3}) WHERE {string4} AND {string5} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
     
@@ -218,11 +182,13 @@ def query_KG(query,db,string1,string2,string3,string4,string5):
 
     response_message={}
 
-    response_message["query_graph"] = query
+    response_message["query_graph"] = json_query
     response_message["results"] = []
     response_message["knowledge_graph"] =  {}
     response_message["knowledge_graph"]["edges"] =  {}
     response_message["knowledge_graph"]["nodes"] =  {}
+
+    print(result)
 
     for word in result:
         w = dict(word)
