@@ -203,7 +203,7 @@ def parse_query(query:Query):
 
 def query_KG(query,db,string1,string2,string3,string4,string5):
     if (string4 != 'n00.=') & (string5 != 'n01.='):
-        query = ''' MATCH ({string1})-[{string2}]-({string3}) WHERE {string4} AND {string5} RETURN DISTINCT n00, e00, n01'''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5) # REMINDER: REMOVE THE LIMIT !!
+        query = ''' MATCH ({string1})-[{string2}]-({string3}) WHERE {string4} AND {string5} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
     
     elif (string4 == 'n00.='):
         query = '''MATCH ({string1})-[{string2}]-({string3}) WHERE {string5} RETURN DISTINCT n00, e00, n01'''.format(string1=string1,string2=string2,string3=string3,string5=string5)
@@ -229,6 +229,7 @@ def query_KG(query,db,string1,string2,string3,string4,string5):
         n0 = dict(w.get("n00"))
         e0 = dict(w.get("e00"))
         n1 = dict(w.get("n01"))
+        predicate = w.get("type(e00)")
 
         response_message['knowledge_graph']['nodes']["n00"] = {
                                                             "Subject_Name": n0.get("Name"),
@@ -245,10 +246,8 @@ def query_KG(query,db,string1,string2,string3,string4,string5):
                                                                 }
                                                             }
 
-        response_message['knowledge_graph']['edges']["n00-n01"] = {
-                                                            #"Subject": e0.something,
-                                                            #"Object": e0.something,
-                                                            #"Predicate": e0.something,
+        response_message['knowledge_graph']['edges']["e00"] = {
+                                                            "Predicate": predicate,
                                                             "Edge_attributes": 
                                                                 {
                                                                 "Edge_attribute_publications": e0.get("Publications"),
