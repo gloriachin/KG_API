@@ -183,12 +183,10 @@ def query_KG(json_query,db,string1,string2,string3,string4,string5):
     response_message={}
 
     response_message["query_graph"] = json_query
-    response_message["results"] = []
+    response_message["results"] = {}
     response_message["knowledge_graph"] =  {}
     response_message["knowledge_graph"]["edges"] =  {}
     response_message["knowledge_graph"]["nodes"] =  {}
-
-    print(result)
 
     for word in result:
         w = dict(word)
