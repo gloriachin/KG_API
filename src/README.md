@@ -1,7 +1,7 @@
 How to use our API right now:
 
 
-1) In the terminal, navigate to the src directory of this repo and enter:
+1) In the terminal, navigate to the home of this repo and enter:
 
 
 python3 -m uvicorn main:app --reload
