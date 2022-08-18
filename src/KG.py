@@ -64,7 +64,6 @@ class KnowledgeGraph(BaseModel):
 class Query(BaseModel):
     message: QueryMessage
 
-
 def parse_query(query:Query):
     result = {}
 
@@ -90,7 +89,7 @@ def parse_query(query:Query):
     subject_node = e00.subject
     object_node = e00.object
 
-    if e00.attributes is not None: #might get an error on splitting a list but lets check that later
+    if e00.attributes is not None: #might get an error about splitting a list but lets check that later
         e00_property = e00.attributes 
         e00_property_type = e00_property.split(':')[0].split(':')[1].upper()
         e00_property_value = e00_property.split(':')[1] #.upper()?

@@ -1,4 +1,4 @@
- // 1)
+ // What genes physically interact with the gene BCL2?
 {
     "message": {
       "query_graph": {
@@ -15,9 +15,6 @@
           "n00": {
             "categories": [
               "biolink:Gene"
-            ],
-            "ids": [
-              "Symbol:\"TP53\""
             ]
           },
           "n01": {
@@ -34,7 +31,7 @@
   }
   
 
-  // 2)
+  // What are the targets for the drug Paclitaxel?
   {
     "message": {
       "query_graph": {
@@ -59,9 +56,6 @@
           "n01": {
             "categories": [
               "biolink:Gene"
-            ],
-            "ids": [
-              "Symbol:\"BCL2\""
             ]
           }
         }
@@ -69,7 +63,7 @@
     }
   }
 
-  // 3)
+  // What drugs are approved to treat ovarian cancer?
   {
     "message": {
       "query_graph": {
@@ -86,9 +80,6 @@
           "n00": {
             "categories": [
               "biolink:Drug"
-            ],
-            "ids": [
-              "Name:\"Olaparib\""
             ]
           },
           "n01": {
