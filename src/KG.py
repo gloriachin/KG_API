@@ -108,16 +108,15 @@ def parse_query(query:Query):
 
     if subject.ids is not None:
         subject_ids = subject.ids 
+        for id in subject_ids:
+            subject_property_type = id.split(':')[0] 
+            subject_property_value = id.split(':')[1] 
 
-    for id in subject_ids:
-        subject_property_type = id.split(':')[0] 
-        subject_property_value = id.split(':')[1] 
-
-    if (subject_property_type != 'Symbol') & (subject_property_type != 'Name'):
-        subject_property_type = subject_property_type + "_ID"
-        subject_property_value = int(subject_property_value)
-    else:
-        subject_property_value = subject_property_value.upper()
+        if (subject_property_type != 'Symbol') & (subject_property_type != 'Name'):
+            subject_property_type = subject_property_type + "_ID"
+            subject_property_value = int(subject_property_value)
+        else:
+            subject_property_value = subject_property_value.upper()
 
     # Handle node n01
     object: NodeParams = nodes[object_node]    # {"categories": [ "biolink:Drug"]}
@@ -132,16 +131,15 @@ def parse_query(query:Query):
 
     if object.ids is not None:
         object_ids = object.ids 
+        for id in object_ids:
+            object_property_type = id.split(':')[0]
+            object_property_value = id.split(':')[1]
 
-    for id in object_ids:
-        object_property_type = id.split(':')[0]
-        object_property_value = id.split(':')[1]
-
-    if (object_property_type != 'Symbol') & (object_property_type != 'Name'):
-        object_property_type = object_property_type + "_ID"
-        object_property_value = int(object_property_value)
-    else:
-        object_property_value = object_property_value.upper()
+        if (object_property_type != 'Symbol') & (object_property_type != 'Name'):
+            object_property_type = object_property_type + "_ID"
+            object_property_value = int(object_property_value)
+        else:
+            object_property_value = object_property_value.upper()
 
     string1 = 'n00:' + subject_category_type
     string2 = 'e00:' + e00_predicate_type
@@ -170,25 +168,26 @@ def query_KG(json_query,db,string1,string2,string3,string4,string5):
         query = ''' MATCH ({string1})-[{string2}]-({string3}) WHERE {string4} AND {string5} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
     
     elif (string4 == 'n00.='):
-        query = '''MATCH ({string1})-[{string2}]-({string3}) WHERE {string5} RETURN DISTINCT n00, e00, n01'''.format(string1=string1,string2=string2,string3=string3,string5=string5)
+        query = '''MATCH ({string1})-[{string2}]-({string3}) WHERE {string5} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(string1=string1,string2=string2,string3=string3,string5=string5)
     
     elif (string5 == 'n01.='):
-        query = '''MATCH ({string1})-[{string2}]-({string3}) WHERE {string4} RETURN DISTINCT n00, e00, n01'''.format(string1=string1,string2=string2,string3=string3,string4=string4)
+        query = '''MATCH ({string1})-[{string2}]-({string3}) WHERE {string4} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(string1=string1,string2=string2,string3=string3,string4=string4)
     
     else:
         query = ''''''
 
     result = db.query(query, db='neo4j')
-
-    response_message={}
-
-    response_message["query_graph"] = json_query
-    response_message["results"] = {}
-    response_message["knowledge_graph"] =  {}
-    response_message["knowledge_graph"]["edges"] =  {}
-    response_message["knowledge_graph"]["nodes"] =  {}
+    
+    response_list = []
 
     for word in result:
+        response_message={}
+
+        response_message["query_graph"] = json_query
+        response_message["results"] = {}
+        response_message["knowledge_graph"] =  {}
+        response_message["knowledge_graph"]["edges"] =  {}
+        response_message["knowledge_graph"]["nodes"] =  {}
         w = dict(word)
         n0 = dict(w.get("n00"))
         e0 = dict(w.get("e00"))
@@ -236,8 +235,10 @@ def query_KG(json_query,db,string1,string2,string3,string4,string5):
                                                                 }
                                                             }
 
+        response_list.insert(len(response_list)-1, response_message)
+
     response = {}
-    response["message"] = response_message
+    response["message"] = response_list
     return(response)
 
 def Query_KG_all(json_query,db):
