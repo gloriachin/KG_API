@@ -13,7 +13,7 @@ SET r.Knowledge_Source = row.ASSOCIATION_Knowledge_Source,
 ;
 
 
-// adding Name property to these Drug and Disease nodes
+// adding Name property to these Drug and Disease nodes (because original csv file I used to create the nodes did not include name)
 LOAD CSV WITH HEADERS
 FROM 'https://storage.googleapis.com/testgqin/with_names_chembl_drug_to_disease.csv' AS row
 

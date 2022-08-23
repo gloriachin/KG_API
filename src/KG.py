@@ -8,7 +8,14 @@ from neo4j import GraphDatabase
 from unicodedata import category
 from typing import Optional, Dict, List, Any
 
-# BaseModels are from BigGIM.py in the BigGIM_fastapi GitHub repository 
+# KG.py
+# This file parses the json formatted user-input, and places its components into a Cypher query. 
+# It then connects to and queries the neo4j graph database with this Cypher query. 
+# Finally, it parses the results and makes a json formatted response, and returns this.
+# Authors: Katie Christensen and Omar Aziz
+# June - August 2022
+
+# BaseModels are from the BigGIM_fastapi GitHub repository 
 # Accessible at: https://github.com/gloriachin/BigGIM_fastapi/blob/main/src/BigGIM.py
 
 class db_connect:
@@ -34,7 +41,7 @@ class db_connect:
             session = self.__driver.session(database=db) if db is not None else self.__driver.session() 
             response = list(session.run(query))
         except Exception as e:
-            print("The Query could not complete:", e)
+            print("The query could not complete:", e)
         finally: 
             if session is not None:
                 session.close()
@@ -69,7 +76,7 @@ def parse_query(query:Query):
 
     nodes = Dict[str, EdgeParams]
     edges = Dict[str, EdgeParams]
-
+                                               # EXAMPLE USER INPUT JSON - to visually show what each variable is holding.
     nodes =  query.message.query_graph.nodes   # { "n00": { "categories": [ "biolink:Gene", ], "ids": [ "NCBI:64102" ],},  "n01": { "categories": [ "biolink:Drug"]}}
     edges =  query.message.query_graph.edges   # { "e00": { "object": "n01", "predicates": [ "biolink:targets" ], "subject": "n00"}}
 
@@ -187,6 +194,7 @@ def query_KG(json_query,db,string1,string2,string3,string4,string5):
         response_message["knowledge_graph"] =  {}
         response_message["knowledge_graph"]["edges"] =  {}
         response_message["knowledge_graph"]["nodes"] =  {}
+
         w = dict(word)
         n0 = dict(w.get("n00"))
         e0 = dict(w.get("e00"))

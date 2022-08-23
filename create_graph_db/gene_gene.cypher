@@ -1,3 +1,6 @@
+// For this one, notice how the file URL says "1clean_gene_gene.csv", I ran all of these queries for 
+// files 1 through 14, so just change the URL in each query below from 1, to 2, to 3, ... , to 14. 
+
 CREATE INDEX ON :Gene(NCBI_ID);
 CREATE INDEX ON :Gene(Symbol);
 
