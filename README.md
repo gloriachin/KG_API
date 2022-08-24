@@ -16,6 +16,14 @@ python3 -m uvicorn main:app --reload
 
 6. Click "Execute" and scroll down to the "Responses" to see the results of your query.
 
+### Summary of Current API
+
+As of right now, the API only handles direct-relationship queries. For example, "What are the drugs approved to treat the disease Acute Myeloid Leukemia?" is a question that the current API can handle because drug and disease nodes share a common, direct, relationship (edge) between them in the graph database. This pattern is the same for gene-to-gene and drug-to-gene queries.
+
+### Future Steps
+
+Future steps include creating additional endpoints that would handle indirect-relationship queries, those that require multiple hops. For example, "What are the gene targets of the disease Acute Myeloid Leukemia?" is a question that we hope to be able to handle in the future. Gene and disease nodes do not share a direct relationship (edge) between them, so this query requires an additional step to find that middle connection, in this case a drug node. So, future goals include writing endpoints to handle such cases.
+
 ### Formatting Knowledge
 To view the files on knowledge standardization, navigate to the database_formatting directory.
 
@@ -25,7 +33,7 @@ To read about how the graph database was created, navigate to the docs/README_no
 
 To view the files on graph database development, navigate to the create_graph_db directory.
 
-### API
+### API Development
 
 To read about how the API was developed, navigate to the docs/README_notebooks directory and choose the api_development notebook.
 
