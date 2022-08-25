@@ -81,12 +81,12 @@ def parse_query(query:Query):
     edges =  query.message.query_graph.edges   # { "e00": { "object": "n01", "predicates": [ "biolink:targets" ], "subject": "n00"}}
 
     # Handle edges
-    e00: EdgeParams = edges['e00']             # {"object": "n01", "predicates": [ "biolink:targets" ], "attributes":{"biolink:tumor_type":"GBM", "subject": "n00"}
+    e00: EdgeParams = edges['e00']             # {"object": "n01", "predicates": [ "biolink:targets" ], "attributes":{'biolink:provided_by': 'Multiomics-BigGIM'}, "subject": "n00"}
     e00_predicates = []                        # ["biolink:targets"]
     e00_predicate_type = ''                    # "TARGETS"
-    e00_property = []                          # ["biolink:tumor_type":"GBM"]
-    e00_property_type = ''                     # "TUMOR_TYPE"
-    e00_property_value = ''                    # "GBM"
+    e00_property = {}                          # {'biolink:provided_by': 'Multiomics-BigGIM'}
+    e00_property_type = ''                     # "Provided_By"
+    e00_property_value = ''                    # "MULTIOMICS-BIGGIM"
     subject_node = ''                          # "n00"
     object_node = ''                           # "n01"
 
@@ -95,11 +95,11 @@ def parse_query(query:Query):
 
     subject_node = e00.subject
     object_node = e00.object
-
-    if e00.attributes is not None: #might get an error about splitting a list but lets check that later
-        e00_property = e00.attributes 
-        e00_property_type = e00_property.split(':')[0].split(':')[1].upper()
-        e00_property_value = e00_property.split(':')[1] #.upper()?
+    
+    if e00.attributes is not None:
+        e00_property = e00.attributes
+        e00_property_type = list(e00_property)[0].split(':')[1]
+        e00_property_value = "\"" + e00_property.get(list(e00_property)[0]).upper() + "\""
 
     # Handle node n00
     subject: NodeParams = nodes[subject_node]  # {"categories": [ "biolink:Gene", ], "ids": [ "NCBI:64102" ]}
@@ -122,7 +122,7 @@ def parse_query(query:Query):
             subject_property_type = subject_property_type + "_ID"
             subject_property_value = int(subject_property_value)
         else:
-            subject_property_value = subject_property_value.upper()
+            subject_property_value = "\"" + subject_property_value.upper() + "\""
 
     # Handle node n01
     object: NodeParams = nodes[object_node]    # {"categories": [ "biolink:Drug"]}
@@ -143,43 +143,54 @@ def parse_query(query:Query):
 
         if (object_property_type != 'Symbol') & (object_property_type != 'Name'):
             object_property_type = object_property_type + "_ID"
-            object_property_value = int(object_property_value)
         else:
-            object_property_value = object_property_value.upper()
+            object_property_value = "\"" + object_property_value.upper() + "\""
 
-    string1 = 'n00:' + subject_category_type
-    string2 = 'e00:' + e00_predicate_type
-    string3 = 'n01:' + object_category_type
-    string4 = 'n00.' + subject_property_type + '=' + subject_property_value
-    string5 = 'n01.' + object_property_type + '=' + object_property_value
+    match_subject = 'n00:' + subject_category_type
+    match_edge = 'e00:' + e00_predicate_type
+    match_object = 'n01:' + object_category_type
+    where_subject = 'n00.' + subject_property_type + '=' + subject_property_value
+    where_edge = 'e00.' + e00_property_type + '=' + e00_property_value
+    where_object = 'n01.' + object_property_type + '=' + object_property_value
 
-    # MATCH ({string1})-[{string2}]-({string3})
-    # WHERE {string4} AND {string5}
-    # RETURN DISTINCT n00, e00, n01
+    # MATCH ({match_subject})-[{match_edge}]-({match_object})
+    # WHERE {where_subject} AND {where_edge} AND {where_object}
+    # RETURN DISTINCT n00, e00, n01, type(e00)
 
     # MATCH (n00:n00_category_type)-[e00:e00_predicate_type]-(n01:n01_category_type)
-    # WHERE n00.n00_property_type=n00_property_value AND n01.n01_property_type=n01_property_value
-    # RETURN DISTINCT n00, e00, n01
+    # WHERE n00.n00_property_type=n00_property_value AND e00.e00_property_type=e00_property_value AND n01.n01_property_type=n01_property_value
+    # RETURN DISTINCT n00, e00, n01, type(e00)
 
     # MATCH (n00:Drug)-[e00:TARGETS]-(n01:Gene)
-    # WHERE n00.Name="PACLITAXEL" AND n01.Symbol="BCL2"
-    # RETURN DISTINCT n00, e00, n01
+    # WHERE n00.Name="PACLITAXEL" AND e00.Provided_By="MULTIOMICS-BIGGIM" AND n01.Symbol="BCL2"
+    # RETURN DISTINCT n00, e00, n01, type(e00)
 
-    result= {"string1": string1, "string2": string2, "string3": string3, "string4": string4,"string5": string5}
+    result= {"match_subject": match_subject, "match_edge": match_edge, "match_object": match_object, "where_subject": where_subject, "where_edge": where_edge, "where_object": where_object}
     return(result)
 
 
-def query_KG(json_query,db,string1,string2,string3,string4,string5):
-    if (string4 != 'n00.=') & (string5 != 'n01.='):
-        query = ''' MATCH ({string1})-[{string2}]-({string3}) WHERE {string4} AND {string5} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(string1=string1,string2=string2,string3=string3,string4=string4,string5=string5)
+def query_KG(json_query,db,match_subject,match_edge,match_object,where_subject,where_edge,where_object):
+    if (where_edge != 'e00.='):
+        if (where_subject != 'n00.=') & (where_object != 'n01.='):
+            query = ''' MATCH ({match_subject})-[{match_edge}]-({match_object}) WHERE {where_subject} AND {where_edge} AND {where_object} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(match_subject=match_subject, match_edge=match_edge, match_object=match_object, where_subject=where_subject, where_edge=where_edge, where_object=where_object)
+        elif (where_subject == 'n00.=') & (where_object != 'n01.='):
+            query = ''' MATCH ({match_subject})-[{match_edge}]-({match_object}) WHERE {where_edge} AND {where_object} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(match_subject=match_subject, match_edge=match_edge, match_object=match_object, where_edge=where_edge, where_object=where_object)
+        elif (where_subject != 'n00.=') & (where_object == 'n01.='):
+            query = ''' MATCH ({match_subject})-[{match_edge}]-({match_object}) WHERE {where_subject} AND {where_edge} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(match_subject=match_subject, match_edge=match_edge, match_object=match_object, where_subject=where_subject, where_edge=where_edge)
+        else:
+            query = ''' MATCH ({match_subject})-[{match_edge}]-({match_object}) WHERE {where_edge} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(match_subject=match_subject, match_edge=match_edge, match_object=match_object, where_edge=where_edge)
+
+    elif (where_edge == 'e00.='):
+        if (where_subject != 'n00.=') & (where_object != 'n01.='):
+            query = ''' MATCH ({match_subject})-[{match_edge}]-({match_object}) WHERE {where_subject} AND {where_object} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(match_subject=match_subject, match_edge=match_edge, match_object=match_object, where_subject=where_subject, where_object=where_object)
+        elif (where_subject == 'n00.=') & (where_object != 'n01.='):
+            query = ''' MATCH ({match_subject})-[{match_edge}]-({match_object}) WHERE {where_object} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(match_subject=match_subject, match_edge=match_edge, match_object=match_object, where_object=where_object)
+        elif (where_subject != 'n00.=') & (where_object == 'n01.='):
+            query = ''' MATCH ({match_subject})-[{match_edge}]-({match_object}) WHERE {where_subject} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(match_subject=match_subject, match_edge=match_edge, match_object=match_object, where_subject=where_subject)
+        else:
+            query = ''' MATCH ({match_subject})-[{match_edge}]-({match_object}) RETURN DISTINCT n00, e00, n01, type(e00)'''.format(match_subject=match_subject, match_edge=match_edge, match_object=match_object)
     
-    elif (string4 == 'n00.='):
-        query = '''MATCH ({string1})-[{string2}]-({string3}) WHERE {string5} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(string1=string1,string2=string2,string3=string3,string5=string5)
-    
-    elif (string5 == 'n01.='):
-        query = '''MATCH ({string1})-[{string2}]-({string3}) WHERE {string4} RETURN DISTINCT n00, e00, n01, type(e00)'''.format(string1=string1,string2=string2,string3=string3,string4=string4)
-    
-    else:
+    else: 
         query = ''''''
 
     result = db.query(query, db='neo4j')
@@ -250,5 +261,5 @@ def query_KG(json_query,db,string1,string2,string3,string4,string5):
 
 def Query_KG_all(json_query,db):
     result = parse_query(json_query)
-    df = query_KG(json_query, db, result['string1'], result['string2'], result['string3'],result['string4'], result['string5'])
+    df = query_KG(json_query, db, result['match_subject'], result['match_edge'], result['match_object'],result['where_subject'], result['where_edge'], result['where_object'])
     return(df)
