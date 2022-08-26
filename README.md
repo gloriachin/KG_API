@@ -10,12 +10,22 @@ python3 -m uvicorn main:app --reload
 
 3. FastAPI user interface will open. Click on the green POST bar.
 
-4. Click "Try it out"
+    1. Click "Try it out"
 
-5. Enter any json query into the "Request body" box. 
-    1. This repository contains example json queries you could enter. Either [click here](https://github.com/gloriachin/KG_API/blob/master/docs/example_queries/json_queries.ipynb) or navigate to the docs/example_queries directory, and choose the json_queries notebook. Copy and paste any of these.
+    2. Enter any JSON query into the "Request body" box. 
+        1. This repository contains example json queries you could enter. Either [click here](https://github.com/gloriachin/KG_API/blob/master/docs/example_queries/json_queries.ipynb) or navigate to the docs/example_queries directory, and choose the json_queries notebook. Copy and paste any of these.
 
-6. Click "Execute" and scroll down to the "Responses" to see the results of your query.
+    3. Click "Execute" and scroll down to the "Responses" to see the results of your query.
+    
+4. Click on the blue GET bar.
+
+    1. Click "Try it out"
+    
+    2. Click "Execute" and scroll down to the "Reponse body" to see the results. 
+    
+    3. Change the URL by removing "/docs" and adding "/KG_types", hit enter.  Your URL should look something like: http://127.0.0.1:8000/KG_types
+        
+        1. See the same results as Step 2, this is just another way to get there.
 
 ### Summary of Current API
 
