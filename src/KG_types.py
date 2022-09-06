@@ -17,6 +17,8 @@ from typing import Optional, Dict, List, Any
 #    in the relationship 'attribute' dictionary of their JSON query, and
 # 4. The node properties that they are allowed to search with 
 #    in the node 'id' list of their JSON query
+# Author: Katie Christensen
+# August 2022
 
 def get_KG_types(db):
     relationship_query = ''
